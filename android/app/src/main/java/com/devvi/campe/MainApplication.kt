@@ -1,4 +1,4 @@
-package com.campe
+package com.devvi.campe
 
 import android.app.Application
 import com.facebook.react.PackageList
