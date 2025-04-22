@@ -19,7 +19,7 @@ export const CrearTarjetaScreen = ({ route, navigation }: any) => {
             myHeaders.append("Content-Type", "application/json");
       
             //await fetch("https://campews.onrender.com/api/facturas/", {
-            await fetch("http://192.168.0.103:3000/api/facturas/", {
+            await fetch("https://campews.onrender.com/api/facturas/", {
               method: "POST",
               headers: myHeaders,
               body: JSON.stringify({
@@ -84,7 +84,7 @@ export const CrearTarjetaScreen = ({ route, navigation }: any) => {
       
             console.log('raw -> ', cliente);
             //await fetch("https://campews.onrender.com/api/usuario/", {
-            await fetch(`http://192.168.0.103:3000/api/usuario/${oCliente._id}`, {
+            await fetch(`https://campews.onrender.com/api/usuario/${oCliente._id}`, {
               method: "PUT",
               headers: myHeaders,
               body: JSON.stringify(cliente),

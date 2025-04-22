@@ -9,6 +9,7 @@ import { CrearTarjetaScreen } from '../Usuarios/CrearTarjetaScreen';
 import { UbicacionClienteScreen } from '../Usuarios/UbicacionClienteScreen';
 import { ImagenClienteScreen } from '../Usuarios/ImagenClienteScreen';
 import { RegistrarPagosScreen } from '../registrarPagos/RegistrarPagosScreen';
+import { PDFScreen } from '../PDF/PDFScreen';
 
 
 const Stack = createStackNavigator();
@@ -124,7 +125,20 @@ export const StackNavigator = () => {
                 }}
             />
             
-                        
+            <Stack.Screen
+                name="PDFScreen"
+                component={PDFScreen}
+                options={{ 
+                    headerShown: true,
+                    title:'Historial de pagos PDF',
+                    headerStyle:{
+                        backgroundColor: '#871a29',
+                    },
+                    headerTintColor: '#FFF',
+                    //headerTitleAlign: 'center',
+                }}
+            />
+
         </Stack.Navigator>
     )
 }

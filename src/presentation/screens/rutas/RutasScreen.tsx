@@ -14,7 +14,7 @@ export const RutasScreen = ({ route, navigation }: any) => {
     try {
       setLoading(false);
       //const URI = `https://campews.onrender.com/api/usuario/`;
-      const URI = `http://192.168.0.103:3000/api/rutas/`;
+      const URI = `https://campews.onrender.com/api/rutas/`;
       const response = await fetch(URI, {
         method: 'GET',
         headers: {
@@ -48,7 +48,7 @@ export const RutasScreen = ({ route, navigation }: any) => {
           titleStyle={{ color: '#000', fontWeight: '700', textAlign: 'center' }}
           subtitle={`${item.municipio}`}
           subtitleStyle={{ color: '#000', fontWeight: '700', textAlign: 'center' }}
-          left={(props) => <Avatar.Icon {...props} icon="map-marker-radius" size={60} color='#FFF' style={{ backgroundColor: '#871a29'}} />}
+          left={(props) => <Avatar.Icon {...props} icon="source-branch" size={60} color='#FFF' style={{ backgroundColor: '#871a29'}} />}
           //right={(props) => <IconButton {...props} icon="dots-vertical" onPress={() => {}} />}
           style={{ 
             borderColor: '#DEDEDE', 

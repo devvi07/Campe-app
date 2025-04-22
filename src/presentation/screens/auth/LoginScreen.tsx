@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Image, Keyboard, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { AlertNotification } from '../../components/AlertNotification';
 
 export const LoginScreen = ({ navigation }: any) => {
 
+    const { width, height } = useWindowDimensions();
     const [user, setUser] = useState("");
     const [pass, setPass] = useState("");
     const [secureTextEntry, setSecureTextEntry] = useState(true);
@@ -12,7 +13,7 @@ export const LoginScreen = ({ navigation }: any) => {
     const [messageAlert, setMessageAlert] = useState('');
     const [iconAlert, setIconAlert] = useState('');
     const [showAlert, setShowAlert] = useState(false);
-    const toggleSecureEntry = () => setSecureTextEntry(!secureTextEntry);
+    const [keyboardVisible, setKeyboardVisible] = useState(false);
 
     const goToForgetPass = () => navigation.navigate('OlvideContraseniaScreen');
     const toggleAlert = () => setShowAlert(!showAlert);
@@ -31,7 +32,7 @@ export const LoginScreen = ({ navigation }: any) => {
             const myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
 
-            await fetch("http://192.168.0.103:3000/api/usuario/login", {
+            await fetch("https://campews.onrender.com/api/usuario/login", {
                 method: "POST",
                 headers: myHeaders,
                 body: raw,
@@ -83,8 +84,27 @@ export const LoginScreen = ({ navigation }: any) => {
         
     }
 
+    const keyBoardListener = () => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+          setKeyboardVisible(true);
+        });
+    
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+          setKeyboardVisible(false);
+        });
+    
+        return () => {
+          keyboardDidHideListener.remove();
+          keyboardDidShowListener.remove();
+        };
+    }
+
+    useEffect(()=>{
+        keyBoardListener();
+    },[]);
+
     return (
-        <View style={styles.constainer}>
+        <View style={[ styles.constainer, { paddingTop: keyboardVisible ? 0: height*0.14 } ]}>
 
             <View style={{ alignItems: 'center', }}>
                 <Image source={require("../../../assets/img/campe.png")} style={{ width: 250, height: 230, resizeMode: "contain" }} />
@@ -135,11 +155,11 @@ export const LoginScreen = ({ navigation }: any) => {
                 </Button>
             </View>
 
-            <View style={{ paddingTop: 30, paddingBottom: 20 }}>
+            {/*<View style={{ paddingTop: 30, paddingBottom: 20 }}>
                 <TouchableOpacity onPress={goToForgetPass}>
                     <Text style={{ textAlign: 'center', fontSize: 14, textDecorationLine: 'underline' }}>Olvide mi contraseña</Text>
                 </TouchableOpacity>
-            </View>
+            </View>*/}
 
             <AlertNotification
                 title={titleAlert}
@@ -159,8 +179,8 @@ export const LoginScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
     constainer: {
         flex: 1,
-        alignContent: 'center',
-        justifyContent: 'center',
+        //alignContent: 'center',
+        //justifyContent: 'center',
         //backgroundColor: '#871a29',
         backgroundColor: '#FFF',
     }

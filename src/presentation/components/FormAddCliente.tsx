@@ -186,7 +186,7 @@ export const FormAddCliente = ({
                     keyboardType= 'phone-pad'
                 />
 
-                <View style={{ marginTop: 7 }}>
+                {/*<View style={{ marginTop: 7 }}>
                     <Dropdown
                         label={"Día de visita"}
                         placeholder={"Selecciona día de visita"}
@@ -196,43 +196,36 @@ export const FormAddCliente = ({
                             selectDia(val);
                         }}
                         menuContentStyle={{ backgroundColor: '#871a29' }}
-                        /*CustomDropdownInput={(props) => (
-                            <TextInput
-                              {...props}
-                              theme={customTheme}
-                              style={{ backgroundColor: customTheme.colors.background }}
-                            />
-                        )}*/
                     />
-                </View>
+                </View>*/}
                 
-                        <View style={{ marginTop: 7 }}>
+                    <View style={{ marginTop: 7 }}>
 
-                            <Button
-                                mode="contained"
-                                onPress={async () => {
+                        <Button
+                            mode="contained"
+                            onPress={async () => {
 
-                                    const result = await launchCamera({
-                                        mediaType: 'photo',
-                                        includeBase64: true,
-                                        quality: 0.7,
-                                        cameraType: 'back'
-                                    });
+                                const result = await launchCamera({
+                                    mediaType: 'photo',
+                                    includeBase64: true,
+                                    quality: 0.7,
+                                    cameraType: 'back'
+                                });
 
-                                    if (result.assets && result.assets[0].uri) {
-                                        console.log('Base64 -> ', result.assets[0].base64);
-                                        setFoto(result.assets[0].base64 ?? '');
-                                        //setFoto('test');
-                                    }
-                                }}
-                                buttonColor='#000'
-                                labelStyle={{ color: '#FFF' }}
-                                style={{ borderRadius: 7 }}
-                            >
-                                Tomar foto
-                            </Button>
+                                if (result.assets && result.assets[0].uri) {
+                                    console.log('Base64 -> ', result.assets[0].base64);
+                                    setFoto(result.assets[0].base64 ?? '');
+                                    //setFoto('test');
+                                }
+                            }}
+                            buttonColor='#000'
+                            labelStyle={{ color: '#FFF' }}
+                            style={{ borderRadius: 7 }}
+                        >
+                            Tomar foto
+                        </Button>
 
-                        </View>
+                    </View>
 
                 {/*<View style={{ marginTop: 7 }}>
                     <Button

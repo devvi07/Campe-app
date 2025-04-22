@@ -1,17 +1,11 @@
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { List } from 'react-native-paper';
-import { HomeScreen } from '../home/HomeScreen';
-import { RegistrarPagosScreen } from '../registrarPagos/RegistrarPagosScreen';
 import { PerfilScreen } from '../perfil/PerfilScreen';
-import { LoginScreen } from '../auth/LoginScreen';
-import { ConsultarPagosScreen } from '../consultarPagos/ConsultarPagosScreen';
 import { AdmonClientesScreen } from '../Usuarios/AdmonClientesScreen';
 import { RutasScreen } from '../rutas/RutasScreen';
 
 export type RootStackParams = {
-  RegistrarPagosScreen: undefined;
-  ConsultarPagosScreen: undefined;
   AdmonClientesScreen: undefined;
   RutasScreen: undefined;
 }
@@ -84,30 +78,6 @@ const CustomDrawerContent = (props: any) => {
         onPress={() => props.navigation.navigate("AdmonClientesScreen")}
       />
 
-      {/*<DrawerItem
-        label={() => (
-          <View
-            style={{
-              flex: 1,
-              flexDirection: "row",
-              marginLeft: -20,
-              marginRight: -40,
-              marginVertical: -15,
-              padding: 15,
-              backgroundColor: currentRoute === "RegistrarPagosScreen" ? "#871a29" : "#FFF"
-            }}
-          >
-            <List.Icon
-              style={{ flex: 1, paddingLeft: 5 }}
-              icon={"currency-usd"}
-              color={currentRoute === "RegistrarPagosScreen" ? "#FFF" :"#871a29"}
-            />
-            <Text style={{ flex: 10, color: currentRoute === "RegistrarPagosScreen" ? "#FFF" :"#871a29", fontSize: 16, textAlignVertical: "center", marginLeft: 20 }}>Registrar pagos</Text>
-          </View>
-        )}
-        onPress={() => props.navigation.navigate("RegistrarPagosScreen")}
-      />*/}
-
       <DrawerItem
         label={() => (
           <View
@@ -162,24 +132,6 @@ export const Navigation = () => {
         name="RutasScreen"
         component={RutasScreen}
       />
-
-      {/*<Drawer.Screen
-        options={{
-          title: '',
-          headerShown: true,
-          headerStyle: { backgroundColor: '#FFF' },
-          headerTitle: () => (
-            <Image
-              source={require('../../../assets/img/campe.png')}
-              style={{ width: 140, height: 60, resizeMode: 'contain' }}
-            />
-          ),
-          headerTitleAlign: 'center',
-          headerTintColor: '#871a29',
-        }}
-        name="RegistrarPagosScreen"
-        component={RegistrarPagosScreen}
-      />*/}
 
       <Drawer.Screen
         options={{

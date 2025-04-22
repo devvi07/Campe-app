@@ -8,7 +8,7 @@ export const useUsuariosService = ({ cliente }: useUsuariosProps) => {
         try {
 
             //const URI = `https://campews.onrender.com/api/usuario/`;
-            const URI = `http://192.168.0.103:3000/api/usuario/`;
+            const URI = `https://campews.onrender.com/api/usuario/`;
             const response = await fetch(URI, {
                 method: 'GET',
                 headers: {
@@ -27,7 +27,7 @@ export const useUsuariosService = ({ cliente }: useUsuariosProps) => {
     const createCliente = async () => {
         try {
             //const URI = `https://campews.onrender.com/api/usuario/`;
-            const URI = `http://192.168.0.103:3000/api/usuario/`;
+            const URI = `https://campews.onrender.com/api/usuario/`;
             const response = await fetch(URI, {
                 method: 'POST',
                 headers: {

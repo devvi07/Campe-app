@@ -75,7 +75,7 @@ export const ClienteScreen = ({route,navigation}: any) => {
             myHeaders.append("Content-Type", "application/json");
 
             //await fetch(`https://campews.onrender.com/api/pagos/`, {
-            await fetch(`http://192.168.0.103:3000/api/pagos/`, {
+            await fetch(`https://campews.onrender.com/api/pagos/`, {
                 method: "POST",
                 headers: myHeaders,
                 body: JSON.stringify({
@@ -229,7 +229,7 @@ export const ClienteScreen = ({route,navigation}: any) => {
                     </Button>
                 </View>*/}
 
-                <View style={{ marginHorizontal: 20, marginTop: 30 }}>
+                {/*<View style={{ marginHorizontal: 20, marginTop: 30 }}>
                     <Button
                         mode="contained"
                         onPress={async () => {
@@ -243,9 +243,9 @@ export const ClienteScreen = ({route,navigation}: any) => {
 
                             if (result.assets && result.assets[0].uri) {
                                 console.log('Base64 -> ',result.assets[0].base64);
-                                /*setLoading(false);
-                                setPhoto(result.assets[0].uri);
-                                saveEvidencia(result.assets[0].base64 ?? '');*/
+                                //setLoading(false);
+                                //setPhoto(result.assets[0].uri);
+                                //saveEvidencia(result.assets[0].base64 ?? '');
                             }
                         }}
                         buttonColor='#000'
@@ -254,9 +254,9 @@ export const ClienteScreen = ({route,navigation}: any) => {
                     >
                         Capturar evidencia
                     </Button>
-                </View>
+                </View>*/}
 
-                <View style={{ marginHorizontal: 20, marginTop: 20 }}>
+                <View style={{ marginHorizontal: 20, marginTop: 50 }}>
                     <Button
                         mode="contained"
                         onPress={() => {

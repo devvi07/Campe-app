@@ -60,7 +60,7 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
 
       console.log('raw -> ', cliente);
       //await fetch("https://campews.onrender.com/api/usuario/", {
-      await fetch("http://192.168.0.103:3000/api/usuario/", {
+      await fetch("https://campews.onrender.com/api/usuario/", {
         method: "POST",
         headers: myHeaders,
         body: JSON.stringify(cliente),
@@ -88,7 +88,7 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
 
       console.log('raw -> ', id);
       //await fetch(`https://campews.onrender.com/api/usuario/${id}`, {
-      await fetch(`http://192.168.0.103:3000/api/usuario/${id}`, {
+      await fetch(`https://campews.onrender.com/api/usuario/${id}`, {
         method: "DELETE",
         headers: myHeaders,
         redirect: "follow"
@@ -227,13 +227,7 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
                             {`Celular: `}<Text style={{ fontWeight: '800' }}>{`${item.tel}`}</Text>
                           </Text>
                         </View>
-
-                        <View style={{ backgroundColor: "#FFF", flexDirection: 'row', justifyContent: 'space-between', maxWidth: width * 0.8 }}>
-                          <Text style={{ color: '#4B4B4B', fontSize: 15 }}>
-                            {`Día de visita: `}<Text style={{ fontWeight: '800' }}>{`${item.dia}`}</Text>
-                          </Text>
-                        </View>
-
+                        
                       </View>
 
                     )}

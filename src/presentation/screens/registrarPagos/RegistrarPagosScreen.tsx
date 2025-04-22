@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { FlatList, Image, PermissionsAndroid, StatusBar, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native'
-import { ActivityIndicator, Card, TextInput } from 'react-native-paper';
-import { Header } from '../../components/Header';
+import { FlatList, Image, StatusBar, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native'
+import { ActivityIndicator, Button, Card, TextInput } from 'react-native-paper';
 import { useUsuariosService } from '../../../hooks/usuarios/useUsuariosService';
 import { formatMiles, getInfoNetWork } from '../utils/Utils';
 import { useIsFocused } from '@react-navigation/native';
@@ -27,13 +26,11 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
     
     setLoading(false);
     const oCliente = await getClientes();
-    console.log('facturas para registrar pago: ', oCliente);
-    let clienteRuta = [];
+    
     if(oCliente){
       if(oCliente.length>0){
 
-        clienteRuta = oCliente.filter((item: any)=> item.municipio === municipio);
-        console.log("🚀 ~ setClientes ~ clienteRuta:", clienteRuta)
+        const clienteRuta = oCliente.filter((item: any)=> item.municipio === municipio);
 
         let totalAbonado = 0;
         let saldoTotal = 0;
@@ -41,18 +38,21 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
         let cliente = '';
         const oMontos = [];
   
-        //for(const tarjeta of oCliente){
         for(const tarjeta of clienteRuta){
+          
+          cliente = tarjeta._id;
+
           if(tarjeta.facturas.length>0){
             
             for(const oPago of tarjeta.facturas){
+              
+              saldoTotal+=oPago.total;
+              abono+=oPago.abono;
+
               if(oPago.pagos.length>0){
-                saldoTotal+=oPago.total;
-                abono+=oPago.abono;
                 for(const total of oPago.pagos){
                   totalAbonado+= total.monto;
                 }
-                cliente = oPago.usuario;
               }
             }
   
@@ -70,12 +70,12 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
   
           }
         }
-  
-        console.log('oMontos: ',oMontos);
+
+        setOcliente(clienteRuta);
         setMontos(oMontos);
   
       }
-      setOcliente(clienteRuta);
+      
     }
     setLoading(true);
   };
@@ -91,7 +91,7 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
 
     return () => unsubscribe();
 
-  },[isFocused]);
+  },[route]);
 
   const goToCliente = (item: any, tel: string, id: string) => {
     navigation.navigate('ClienteScreen',{item: item, telCliente:tel, idCliente:id});
@@ -118,15 +118,9 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
             </Text>
           }
 
-        <View 
-          style={{ 
-            backgroundColor: item.facturas.length == 0 ? "#F7F7F7" : "#FFF", 
-            flexDirection: 'row', 
-            justifyContent: 'space-around' 
-          }}
-        >
+        <View style={{ backgroundColor: item.facturas.length == 0 ? "#F7F7F7" : "#FFF", flexDirection: 'row' }}>
 
-          <View style={{ right: 15 }}>
+          <View style={{ right: 15, top: 6 }}>
             <TouchableOpacity 
               onPress={()=>{
                 navigation.navigate('ImagenClienteScreen',{ imagen: item.foto });
@@ -139,7 +133,7 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
             </TouchableOpacity>
           </View>
 
-          <View style={{ right: 7 }}>
+          <View style={{  }}>
               
             <View style={{ flexDirection: 'row' }}>
               <Text style={[ styles.label, { width: width*0.23 } ]}>Cliente: </Text>
@@ -151,11 +145,7 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
               <Text style={ styles.value }>{
                 item.facturas.length>0 ?
                 <>
-                {
-                  (item.facturas.pagos && item.facturas.pagos.length>0)?
-                  <>{formatMiles(montos.filter((value: any) => value.cliente === item._id)[0].saldoTotal,true )}</>:
-                  <>{formatMiles('0', true)}</>
-                }
+                {formatMiles(montos.filter((value: any) => value.cliente === item._id)[0].saldoTotal,true )}
                 </>:<>{formatMiles('0', true)}</>
               }</Text>
             </View>
@@ -166,11 +156,7 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
               
               item.facturas.length>0 ?
               <>
-              {
-                (item.facturas.pagos && item.facturas.pagos.length>0)?
-                <>{formatMiles(montos.filter((value: any) => value.cliente === item._id)[0].abono,true )}</>:
-                <>{formatMiles('0', true)}</>
-              }
+              {formatMiles(montos.filter((value: any) => value.cliente === item._id)[0].abono,true )}
               </>:
               <>
                 {formatMiles('0', true)}
@@ -185,11 +171,7 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
               
               item.facturas.length>0 ?
               <>
-              {
-                (item.facturas.pagos && item.facturas.pagos.length>0)?
-                <>{formatMiles(montos.filter((value: any) => value.cliente === item._id)[0].totalAbonado,true )}</>:
-                <>{formatMiles('0', true)}</>
-              }
+              {formatMiles(montos.filter((value: any) => value.cliente === item._id)[0].totalAbonado,true )}
               </>:
               <>
                 {formatMiles('0', true)}
@@ -204,11 +186,7 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
               
               item.facturas.length>0 ?
               <>
-              {
-                (item.facturas.pagos && item.facturas.pagos.length>0)?
-                <>{formatMiles(montos.filter((value: any) => value.cliente === item._id)[0].resta,true )}</>:
-                <>{formatMiles('0', true)}</>
-              }
+              {formatMiles(montos.filter((value: any) => value.cliente === item._id)[0].resta,true )}
               </>:
               <>
                 {formatMiles('0', true)}
@@ -219,21 +197,21 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
 
           </View>
 
-          {
+        </View>
+
+        {
             item.facturas.length>0 &&
-            <View style={{ justifyContent: 'center', right: 10 }}>
+            <View style={{ left: width*0.85, top: -60 }}>
               <TextInput.Icon
-                icon={'chevron-right-circle'}
-                size={25}
-                color={'#CFD8DC'}
+                icon={ itemActivo === index ?'chevron-up-circle' : 'chevron-right-circle'  }
+                size={27}
+                color={itemActivo === index ? '#871a29' :'#CFD8DC'}
                 onPress={() => {
                   toggleTarjeta(index);
                 }}
               />
             </View>
-          }
-
-        </View>
+        }
 
         {
           (itemActivo === index) &&
@@ -243,46 +221,41 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
                 {`Tarjeta(s) de ${item.nombre}`}
               </Text>
 
-              <View style={{ margin: 20 }}>
+              <View style={{ marginHorizontal: 20 }}>
               {
                 item.facturas.map((val:any) =>(
                   <>
-                    <TouchableOpacity
-                      onPress={() => {
-                        console.log('ITEM PARA FACTURA: ', item);
-                        goToCliente(val, item.tel, item._id);
-                      }}
-                    >
-                      <Text style={{ textAlign: 'center', color: '#871a29FF', fontWeight: '600', fontSize: 14, textDecorationLine: 'underline' }}>
+                    <View style={{ marginBottom: 15, marginTop: 15 }}>
+                      <Button
+                        icon="card-account-details"
+                        mode="contained"
+                        style={{ borderRadius: 5 }}
+                        buttonColor={'#adbc5b'}
+                        textColor='#FFF'
+                        onPress={() => {
+                          goToCliente(val, item.tel, item._id);
+                        }}
+                      >
                         {`Ver tarjeta de articulo: ${val.articulo}`}
-                      </Text>
-                    </TouchableOpacity>
+                      </Button>
+                    </View>
                   </>
                 ))
                 
               }
-              
-              <TouchableOpacity
-                onPress={() => {
-                  console.log('ITEM PARA FACTURA: ', item);
-                  //goToCliente(val, item.tel, item._id);
-                  navigation.navigate('HistorialPagosScreen', { oFactura: item.facturas });
-                }}
-              >
-                <Text style={{ textAlign: 'center', color: '#871a29FF', fontWeight: '600', fontSize: 14, textDecorationLine: 'underline' }}>
-                  {`\nVer historial de pagos`}
-                </Text>
-              </TouchableOpacity>
 
-              {/*<TouchableOpacity
+              <Button 
+                icon="briefcase-eye" 
+                mode="contained" 
+                style={{ borderRadius: 5 }}
+                buttonColor={'#986400'}
+                textColor='#FFF'
                 onPress={() => {
-                  navigation.navigate('UbicacionClienteScreen', { latitud: item.latitud, longitud: item.longitud });
+                  navigation.navigate('HistorialPagosScreen', { oFactura: item.facturas, item: item });
                 }}
               >
-                <Text style={{ textAlign: 'center', color: '#871a29FF', fontWeight: '600', fontSize: 14, textDecorationLine: 'underline' }}>
-                  {`\nVer ubicación del cliente`}
-                </Text>
-              </TouchableOpacity>*/}
+                Ver historial de pagos
+              </Button>
 
               </View>
 
