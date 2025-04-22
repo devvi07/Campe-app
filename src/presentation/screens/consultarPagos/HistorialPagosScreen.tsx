@@ -4,27 +4,46 @@ import { Button, Card } from 'react-native-paper';
 import { formatDate, formatMiles } from '../utils/Utils';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import { LOGO } from '../utils/ImgWaterMark';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export const HistorialPagosScreen = ({ route, navigation }: any) => {
 
   const { oFactura, item } = route.params;
   const { width, height } = useWindowDimensions();
 
-  const [ pagos, setPagos ] = useState([]);
+  const [ saldoTotal, setSaldoTotal ] = useState(0);
+  const [ abonoTotal, setAbonoTotal ] = useState(0);
+  const [ restaTotal, setRestaTotal ] = useState(0);
+
+  const calculaSaldos = () => {
+    
+    let abonoTotal = 0;
+    let totalFactura = 0;
+
+    for(let v=0; v<oFactura.length; v++){
+      totalFactura+=oFactura[v].total;
+    }
+
+    for(let v=0; v<oFactura.length; v++){
+
+      let totalFacturaAux = totalFactura;
+      for(let y=0; y<oFactura[v].pagos.length; y++){
+        
+        abonoTotal+= oFactura[v].pagos[y].monto;
+        totalFacturaAux = (totalFacturaAux - oFactura[v].pagos[y].monto);
+      }
+
+    }
+
+    const resta = (totalFactura-abonoTotal);
+
+    setSaldoTotal(totalFactura);
+    setAbonoTotal(abonoTotal);
+    setRestaTotal(resta);
+
+  };
 
   const generarPDF = async () => {
-
-    /*const filas = oFactura.map(prod => {
-      const total = prod.precioUnitario * prod.cantidad;
-      return `
-        <tr>
-          <td>${prod.cantidad}</td>
-          <td>${prod.descripcion}</td>
-          <td>$${prod.precioUnitario.toFixed(2)}</td>
-          <td>$${total.toFixed(2)}</td>
-        </tr>
-      `;
-    }).join('');*/
 
     const articulos = oFactura.map((factura: any) => {
       return `
@@ -36,30 +55,38 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
 
     let abonoTotal = 0;
     let totalFactura = 0;
+    let sPago = ``;
+
     for(let v=0; v<oFactura.length; v++){
       totalFactura+=oFactura[v].total;
     }
 
-    /*const totales = `
+    for(let v=0; v<oFactura.length; v++){
+
+      let totalFacturaAux = totalFactura;
+      for(let y=0; y<oFactura[v].pagos.length; y++){
+        
+        abonoTotal+= oFactura[v].pagos[y].monto;
+        
+        sPago+= `
+          <tr>
+            <td>${formatDate(oFactura[v].pagos[y].fecha)}</td>
+            <td>${formatMiles(oFactura[v].pagos[y].monto, true)}</td>
+            <td>${formatMiles((totalFacturaAux - oFactura[v].pagos[y].monto).toString(), true)}</td>
+            <td>${oFactura[v].pagos[y].metodo}</td>
+          </tr>
+        `;
+        totalFacturaAux = (totalFacturaAux - oFactura[v].pagos[y].monto);
+      }
+
+    }
+
+    const resta = (totalFactura-abonoTotal);
+    const totales = `
       <p><strong>Saldo total:</strong> ${formatMiles(totalFactura.toString(), true)}</p>
-      <p><strong>Abono total:</strong> </p>
-      <p><strong>Resta:</strong> <strong>$29,870.00</strong></p>
-    `;*/
-
-    let sPago = ``;
-    const facturasPagos = pagos.map((pago: any, index: number) => {
-      
-      return sPago += `
-        <tr>
-          <td>${formatDate(pago[index].fecha)}</td>
-          <td>${formatMiles(pago[index].monto, true)}</td>
-          <td>${formatMiles((totalFactura - pago[index].monto).toString(), true)}</td>
-          <td>${pago[index].metodo}</td>
-        </tr>
-      `;  
-    }).join('');
-
-    console.log('facturasPagos -> ',facturasPagos);
+      <p><strong>Abono total:</strong> ${formatMiles(abonoTotal.toString(), true)}</p>
+      <p><strong>Resta:</strong> <strong>${formatMiles(resta.toString(), true)}</strong></p>
+    `;
 
     const html = `
   <html>
@@ -125,7 +152,7 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
   <body>
     <img src="${LOGO}" class="watermark" />
     <div class="contenedor">
-      <h1>Estatus de pagos</h1>
+      <h1>Historico de pagos</h1>
 
       <div class="encabezado">
         <p><strong>Cliente:</strong> ${item.nombre} ${item.apellidoP} ${item.apellidoM}</p>
@@ -147,9 +174,7 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
       </table>
 
       <div class="totales">
-        <p><strong>Saldo total:</strong> $25,750.00</p>
-        <p><strong>Abono total:</strong> $4,120.00</p>
-        <p><strong>Resta:</strong> <strong>$29,870.00</strong></p>
+        ${totales}
       </div>
     </div>
   </body>
@@ -182,8 +207,7 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
   useEffect(()=>{
     console.log('item -> ',item);
     console.log('oFactura -> ',oFactura);
-    const pagos = oFactura.map((factura: any) => factura.pagos);
-    setPagos(pagos);
+    calculaSaldos();
 
   },[]);
 
@@ -226,6 +250,7 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
             {
               factura.pagos.length>0 ?
               <>
+                <ScrollView>
                 {
                   factura.pagos.map((pago: any) =>(
                     <>
@@ -262,6 +287,38 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
                   ))
 
                 }
+
+                <View style={{ backgroundColor: '#000', height: 35, borderRadius: 4, justifyContent: 'center' }}>
+                  <Text style={{ color: '#FFF', fontWeight: '900', textAlign: 'center', fontSize: 15 }}>Resumen de pagos</Text>
+                </View>
+
+                    <Card style={{ borderRadius: 4, backgroundColor: '#FFF' }}>
+                      <Card.Content>
+
+                        <View style={{ marginHorizontal: width * 0.05 }}>
+
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <Text style={styles.label}>{`Saldo total:`}</Text>
+                            <Text style={styles.value}>{`${formatMiles(saldoTotal.toString(), true)}`}</Text>
+                          </View>
+
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <Text style={styles.label}>{`Abono total:`}</Text>
+                            <Text style={styles.value}>{`${formatMiles(abonoTotal.toString(), true)}`}</Text>
+                          </View>
+
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <Text style={styles.label}>{`Resta:`}</Text>
+                            <Text style={styles.value}>{`${formatMiles(restaTotal.toString(), true)}`}</Text>
+                          </View>
+
+                        </View>
+
+
+                      </Card.Content>
+                    </Card>
+
+
                 <View style={{ marginTop: 20 }}>
                   <Button 
                     icon="file-document" 
@@ -277,7 +334,7 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
                     Generar PDF
                   </Button>
                 </View>
-
+                </ScrollView>
               </>:
               <View>
                 <Text>No se han realizado pagos.</Text>

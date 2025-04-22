@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useWindowDimensions, View, StyleSheet } from 'react-native';
-import { Button } from 'react-native-paper';
+import { ScrollView } from 'react-native-gesture-handler';
+import { Button, IconButton, TextInput } from 'react-native-paper';
 import Pdf from 'react-native-pdf';
 import Share, { ShareOptions } from 'react-native-share';
 
@@ -23,36 +24,39 @@ export const PDFScreen = ({ route, navigation }: any) => {
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.error('Error al compartir PDF:', error.message, error.stack);
-              } else {
+            } else {
                 console.error('Error al compartir PDF (desconocido):', error);
-              }
+            }
         }
     };
 
     return (
         <View style={{ flex: 1, backgroundColor: '#FFF' }}>
+
             {rutaPDF && (
-                <Pdf
-                    source={{ uri: rutaPDF }}
-                    style={{ flex: 1, width: width, height: height, backgroundColor: '#DEDEDE'}}
-                />
+                <ScrollView>
+                    <View>
+                        <Pdf
+                            source={{ uri: rutaPDF }}
+                            style={{ flex: 1, width: width, height: height*0.7 }}
+                        />
+                    </View>
+                </ScrollView>
             )}
 
-            <View style={{ marginBottom: height*0.17, marginHorizontal: 20, top:50 }}>
-                <Button
-                    icon="share-circle"
-                    mode="contained"
+            <View style={{ marginBottom: height * 0.17, top: 50, alignItems: 'center' }}>
+
+                <TextInput.Icon
+                    icon={'share-circle'}
+                    size={60}
+                    color={'#871a29'}
                     onPress={() => {
                         compartirPDF(rutaPDF);
-                        console.log('Genera PDF');
                     }}
-                    buttonColor='#FFFF'
-                    textColor='#871a29'
-                    style={{ borderRadius: 7, borderColor: '#CFD8DC', borderWidth: 1 }}
-                >
-                    Compartir PDF
-                </Button>
+                />
+
             </View>
+
         </View>
     )
 }
