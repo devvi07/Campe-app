@@ -110,7 +110,7 @@ export const CrearTarjetaScreen = ({ route, navigation }: any) => {
     return (
         <View style={{ flex: 1, backgroundColor: '#FFF' }}>
             
-            <Header title={`${oCliente.nombre} ${oCliente.apellidoP} ${oCliente.apellidoM}`}/>
+            <Header title={`${oCliente.nombre} ${oCliente.apellidoP} ${oCliente.apellidoM}`} color={'#DEDEDE'} textColor={'#000'}/>
 
             <View style={{ marginHorizontal: 20, marginTop: 20 }}>
 

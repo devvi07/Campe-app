@@ -244,26 +244,28 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
                           <Text style={styles.textoAccion}>tarjeta</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity
+                        {/*<TouchableOpacity
                           style={[styles.backButton, styles.editButton]}
                           onPress={() => {
                             console.log('Editar');
                           }}
                         >
                           <Text style={styles.textoAccion}>Editar</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity>*/}
 
-                        <TouchableOpacity
+                        {/*<TouchableOpacity
                           style={[styles.backButton, styles.deleteButton]}
                           onPress={() => {
                             eliminarItem(item._id);
                           }}
                         >
                           <Text style={styles.textoAccion}>Eliminar</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity>*/}
+
                       </View>
                     )}
-                    rightOpenValue={-240}
+                    //rightOpenValue={-240}
+                    rightOpenValue={-80}
                     disableRightSwipe
                   />
 

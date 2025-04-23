@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { Button, Card } from 'react-native-paper';
+import { Button, Card, Divider } from 'react-native-paper';
 import { formatDate, formatMiles } from '../utils/Utils';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import { LOGO } from '../utils/ImgWaterMark';
@@ -219,7 +219,7 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
           <View key={factura._id} style={{ backgroundColor: '#FFF', marginHorizontal: 10, marginTop: 10 }}>
 
             <Card style={{ borderRadius: 4, backgroundColor: '#FFF' }}>
-              <Card.Content>
+              <Card.Content style={{ backgroundColor: '#871a291A' }}>
                 
                 <View style={{ marginHorizontal: width *0.20 }}>
                   
@@ -243,8 +243,10 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
               </Card.Content>
             </Card>
 
-            <View style={{ backgroundColor: '#adbc5b', height: 35, borderRadius: 4, justifyContent: 'center' }}>
-              <Text style={{ color: '#FFF', fontWeight: '900', textAlign: 'center', fontSize: 15 }}>Pagos realizados</Text>
+            <View style={{ marginTop: 7 }}>
+              <View style={{ backgroundColor: '#adbc5b', height: 35, borderRadius: 4, justifyContent: 'center' }}>
+                <Text style={{ color: '#FFF', fontWeight: '900', textAlign: 'center', fontSize: 15 }}>Pagos realizados</Text>
+              </View>
             </View>            
             
             {
@@ -288,9 +290,11 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
 
                 }
 
-                <View style={{ backgroundColor: '#000', height: 35, borderRadius: 4, justifyContent: 'center' }}>
-                  <Text style={{ color: '#FFF', fontWeight: '900', textAlign: 'center', fontSize: 15 }}>Resumen de pagos</Text>
-                </View>
+                    <View style={{ marginTop: 7 }}>
+                      <View style={{ backgroundColor: '#d84473', height: 35, borderRadius: 4, justifyContent: 'center' }}>
+                        <Text style={{ color: '#FFF', fontWeight: '900', textAlign: 'center', fontSize: 15 }}>Resumen de pagos</Text>
+                      </View>
+                    </View>
 
                     <Card style={{ borderRadius: 4, backgroundColor: '#FFF' }}>
                       <Card.Content>

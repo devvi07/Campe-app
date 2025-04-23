@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Linking, Text, View } from 'react-native';
-import { Button, TextInput } from 'react-native-paper';
+import { ActivityIndicator, Button, TextInput } from 'react-native-paper';
 import { ImageLibraryOptions, launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { ScrollView } from 'react-native-gesture-handler';
-import { formatMiles, getCurrentDate } from '../utils/Utils';
+import { formatDate, formatMiles, getCurrentDate } from '../utils/Utils';
 import { AlertNotification } from '../../components/AlertNotification';
 import SendIntentAndroid from 'react-native-send-intent';
+import { Dropdown } from 'react-native-paper-dropdown';
 
 export const ClienteScreen = ({route,navigation}: any) => {
 
@@ -14,14 +15,22 @@ export const ClienteScreen = ({route,navigation}: any) => {
     const [ abono, setAbono ] = useState(0);
     const [ resta, setResta ] = useState(item.resta);
     const [ pagosIds, setPagosIds ] = useState<any>([]);
+    const [metodoPago, setMetodoPago] = useState<string>();
 
     const [titleAlert, setTitleAlert] = useState('');
     const [messageAlert, setMessageAlert] = useState('');
     const [iconAlert, setIconAlert] = useState('');
     const [showAlert, setShowAlert] = useState(false);
+    const [loading, setLoading] = useState(true);
     const FECHA = getCurrentDate();
 
     const toggleAlert = () => setShowAlert(!showAlert);
+
+    const PAGOS = [
+        { label: 'Efectivo', value: 'Efectivo' },
+        { label: 'Transferencia', value: 'Transferencia' },
+        { label: 'Sin abono', value: 'Sin abono' },
+    ];
 
     const setAlert = (title: string, message: string, icon: string) => {
         setTitleAlert(title);
@@ -70,7 +79,7 @@ export const ClienteScreen = ({route,navigation}: any) => {
 
     const creaPago = async () => {
         try {
-
+            setLoading(false);
             const myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
 
@@ -79,9 +88,9 @@ export const ClienteScreen = ({route,navigation}: any) => {
                 method: "POST",
                 headers: myHeaders,
                 body: JSON.stringify({
-                    "factura": item._id,
                     "monto": abono,
-                    "metodo": "EFECTIVO",
+                    "metodo": abono == 0 ? 'Sin abono' : metodoPago,
+                    "status": abono == 0 ? 'Sin abono' : 'abono',
                     "fecha": Date.now()
                 }),
                 redirect: "follow"
@@ -131,7 +140,7 @@ export const ClienteScreen = ({route,navigation}: any) => {
                     "total": item.total,
                     "abono": Number(abono),
                     "resta": resta,
-                    "status":"abono"
+                    "status": abono == 0 ? 'Sin abono' : 'abono'
                 }),
                 redirect: "follow"
             }).then(async (response) => {
@@ -140,7 +149,13 @@ export const ClienteScreen = ({route,navigation}: any) => {
                 return { codigo, texto };
             }).then((result) => {
                 console.log('result Factura: ', result);
-                setAlert('Pago registrado', '¡Su abono se realizó exitosamente!\nFavor de realizar la confirmación vía whatsapp.', 'success');
+                setLoading(true);
+                if(abono == 0){
+                    setAlert('Sin abono', '¡Su visita al cliente a sido registrada en el sistema!', 'info');
+                }else{
+                    setAlert('Pago registrado', '¡Su abono se realizó exitosamente!\nFavor de realizar la confirmación vía whatsapp.', 'success');
+                }
+                
             }).catch((error) => console.error(error));
 
 
@@ -152,7 +167,9 @@ export const ClienteScreen = ({route,navigation}: any) => {
 
     return (
         <View style={{ flex: 1, backgroundColor: '#FFF' }}>
-
+        {
+            loading ? 
+            <>
             <ScrollView>
                 <View style={{ justifyContent: 'center', marginHorizontal: 25, marginTop: 80, alignItems: 'center', marginBottom: 66 }}>
                     <TextInput.Icon
@@ -200,6 +217,24 @@ export const ClienteScreen = ({route,navigation}: any) => {
                         onSubmitEditing={calculaMontosAcumulados}
                     />
                 </View>
+                
+                <View style={{ marginHorizontal: 20, marginTop: 15 }}>
+                    <Dropdown
+                        label={"Metódo de pago"}
+                        placeholder={"Selecciona método de pago"}
+                        options={PAGOS}
+                        value={metodoPago}
+                        onSelect={(val: any) => {
+                            
+                            if(val === 'Sin abono')
+                                setAbono(0);
+
+                            setMetodoPago(val);
+
+                        }}
+                        menuContentStyle={{ backgroundColor: '#000' }}
+                    />
+                </View>
 
                 <View style={{ marginHorizontal: 20, marginTop: 15 }}>
                     <TextInput
@@ -214,59 +249,17 @@ export const ClienteScreen = ({route,navigation}: any) => {
 
                 </View>
 
-                {/*<View style={{ marginHorizontal: 20, marginTop: 30 }}>
-                    <Button
-                        mode="contained"
-                        onPress={async () => {
-                            console.log('Consultar historial de pagos');
-                            navigation.navigate('HistorialPagosScreen');
-                        }}
-                        buttonColor='#b05f00'
-                        labelStyle={{ color: '#FFF' }}
-                        style={{ borderRadius: 7 }}
-                    >
-                        Historial de pagos
-                    </Button>
-                </View>*/}
-
-                {/*<View style={{ marginHorizontal: 20, marginTop: 30 }}>
-                    <Button
-                        mode="contained"
-                        onPress={async () => {
-
-                            const result = await launchCamera({
-                                mediaType: 'photo',
-                                includeBase64: true,
-                                quality: 0.7,
-                                cameraType: 'back'
-                            });
-
-                            if (result.assets && result.assets[0].uri) {
-                                console.log('Base64 -> ',result.assets[0].base64);
-                                //setLoading(false);
-                                //setPhoto(result.assets[0].uri);
-                                //saveEvidencia(result.assets[0].base64 ?? '');
-                            }
-                        }}
-                        buttonColor='#000'
-                        labelStyle={{ color: '#FFF' }}
-                        style={{ borderRadius: 7 }}
-                    >
-                        Capturar evidencia
-                    </Button>
-                </View>*/}
-
                 <View style={{ marginHorizontal: 20, marginTop: 50 }}>
                     <Button
                         mode="contained"
                         onPress={() => {
                             console.log('Confirmar pago!');
                             console.log('abono: ',abono);
-                            if(abono == 0)
+                            if(abono == 0 && metodoPago !== 'Sin abono')
                                 setAlert('Alerta', '¡Debes indicar la cantidad del abono!', 'warning');
                             else
-                                creaPago();    
-                                
+                                creaPago();
+                            
                         }}
                         buttonColor='#871a29'
                         labelStyle={{ color: '#FFF' }}
@@ -288,7 +281,11 @@ export const ClienteScreen = ({route,navigation}: any) => {
                 toggleAlert={toggleAlert}
                 fnAlert={fnAlert}
             />
-
+            </>:
+            <View style={{ marginTop: 150 }}>
+                <ActivityIndicator animating={true} color={'#871a29'} size={50} />
+            </View>
+        }
         </View>
     )
 }

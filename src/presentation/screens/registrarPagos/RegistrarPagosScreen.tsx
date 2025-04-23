@@ -31,6 +31,7 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
       if(oCliente.length>0){
 
         const clienteRuta = oCliente.filter((item: any)=> item.municipio === municipio);
+        console.log("🚀 ~ setClientes ~ clienteRuta:", clienteRuta)
 
         let totalAbonado = 0;
         let saldoTotal = 0;
