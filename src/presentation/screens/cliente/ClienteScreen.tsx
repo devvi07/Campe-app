@@ -134,6 +134,11 @@ export const ClienteScreen = ({route,navigation}: any) => {
                 
             }
 
+            let status = abono == 0 ? 'Sin abono' : 'abono';
+
+            if(resta === 0)
+                status = 'Pagado';
+
             oPagosIds.push(idPago);
             console.log("🚀 ~ updateFactura ~ oPagosIds:", oPagosIds)
             const myHeaders = new Headers();
@@ -150,7 +155,7 @@ export const ClienteScreen = ({route,navigation}: any) => {
                     "total": item.total,
                     "abono": Number(abono),
                     "resta": resta,
-                    "status": abono == 0 ? 'Sin abono' : 'abono'
+                    "status": status
                 }),
                 redirect: "follow"
             }).then(async (response) => {
@@ -258,7 +263,9 @@ export const ClienteScreen = ({route,navigation}: any) => {
                     />
 
                 </View>
-
+                
+                {
+                item.status !== 'Pagado' &&
                 <View style={{ marginHorizontal: 20, marginTop: 50 }}>
                     <Button
                         mode="contained"
@@ -286,6 +293,7 @@ export const ClienteScreen = ({route,navigation}: any) => {
                         Confirmar pago
                     </Button>
                 </View>
+                }
 
             </ScrollView>
 

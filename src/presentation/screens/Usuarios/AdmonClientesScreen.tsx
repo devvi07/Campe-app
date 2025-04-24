@@ -237,9 +237,14 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
                           <Text style={{ fontWeight: '800' }}>{`${item.direccion}`}</Text>
                         </View>
 
-                        <View style={{ backgroundColor: "#FFF", flexDirection: 'row', justifyContent: 'space-between', width: width*0.6, alignSelf: 'center' }}>
+                        {/*<View style={{ backgroundColor: "#FFF", flexDirection: 'row', justifyContent: 'space-between', width: width*0.6, alignSelf: 'center' }}>
                           <Text style={{ color: '#4B4B4B', fontSize: 15 }}>{`Celular: `}</Text>
                           <Text style={{ fontWeight: '800' }}>{`${item.tel}`}</Text>
+                        </View>*/}
+
+                        <View style={{ backgroundColor: "#FFF", flexDirection: 'row', justifyContent: 'space-between', width: width*0.6, alignSelf: 'center' }}>
+                          <Text style={{ color: '#4B4B4B', fontSize: 15 }}>{`Ruta: `}</Text>
+                          <Text style={{ fontWeight: '800' }}>{`${item.municipio}`}</Text>
                         </View>
                         
                       </View>
