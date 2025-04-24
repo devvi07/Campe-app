@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { Button, Card, Divider } from 'react-native-paper';
+import { Button, Card, Divider, TextInput } from 'react-native-paper';
 import { formatDate, formatMiles } from '../utils/Utils';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import { LOGO } from '../utils/ImgWaterMark';
@@ -340,8 +340,19 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
                 </View>
                 </ScrollView>
               </>:
-              <View>
-                <Text>No se han realizado pagos.</Text>
+              <View style={{ alignItems: 'center', alignSelf: 'center', marginTop: 150 }}>
+                
+                  <View style={{ top: -80 }}>
+                    <TextInput.Icon
+                      icon={'cash-remove'}
+                      size={120}
+                      color={'#CFD8DC'}
+                      onPress={() => {
+                      }}
+                    />
+                  </View>
+                  <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}>No se han realizado pagos/abonos.</Text>
+                
               </View>
             }
           </View>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { FlatList, Image, StatusBar, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native'
 import { ActivityIndicator, Button, Card, TextInput } from 'react-native-paper';
 import { useUsuariosService } from '../../../hooks/usuarios/useUsuariosService';
-import { formatMiles, getInfoNetWork } from '../utils/Utils';
+import { formatDateDDMMMYYY, formatMiles, getCurrentDateDDMMYYYY, getInfoNetWork } from '../utils/Utils';
 import { useIsFocused } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';
 
@@ -104,7 +104,10 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
       style={[
         styles.card,
         { 
-          backgroundColor: item.facturas.length == 0 ? "#F7F7F7" : "#FFF", 
+          //backgroundColor: item.facturas.length == 0 ? "#F7F7F7" : "#FFF",  
+          backgroundColor: item.facturas.length == 0 
+            ? "#F7F7F7" : (item.facturas[0].status == "abono" && formatDateDDMMMYYY(item.facturas[0].updatedAt) == getCurrentDateDDMMYYYY()) ? '#ebfbd8' : 
+            (item.facturas[0].status == "Sin abono" &&formatDateDDMMMYYY(item.facturas[0].updatedAt) == getCurrentDateDDMMYYYY()) ? '#fffba4' : '#FFF',  
           borderRadius: 0
         }
       ]}
@@ -119,7 +122,15 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
             </Text>
           }
 
-        <View style={{ backgroundColor: item.facturas.length == 0 ? "#F7F7F7" : "#FFF", flexDirection: 'row' }}>
+        <View 
+          style={{ 
+            //backgroundColor: item.facturas.length == 0 ? "#F7F7F7" : "#FFF", 
+            backgroundColor: item.facturas.length == 0 
+            ? "#F7F7F7" : (item.facturas[0].status == "abono" && formatDateDDMMMYYY(item.facturas[0].updatedAt) == getCurrentDateDDMMYYYY()) ? '#ebfbd8' : 
+            (item.facturas[0].status == "Sin abono" &&formatDateDDMMMYYY(item.facturas[0].updatedAt) == getCurrentDateDDMMYYYY()) ? '#fffba4' : '#FFF',
+            flexDirection: 'row' 
+          }}
+        >
 
           <View style={{ right: 15, top: 6 }}>
             <TouchableOpacity 
@@ -127,10 +138,18 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
                 navigation.navigate('ImagenClienteScreen',{ imagen: item.foto });
               }}
             >
-              <Image
-                source={{ uri: `data:image/png;base64,${item.foto}` }}
-                style={{ width: 90, height: 90, borderRadius: 5 }}
-              />
+              {
+                item.foto == "" ?
+                <Image
+                  source={require('../../../assets/img/user.png')}
+                  style={{ width: 90, height: 90, borderRadius: 5 }}
+                />:
+                <Image
+                  source={{ uri: `data:image/png;base64,${item.foto}` }}
+                  style={{ width: 90, height: 90, borderRadius: 5 }}
+                />
+              }
+              
             </TouchableOpacity>
           </View>
 

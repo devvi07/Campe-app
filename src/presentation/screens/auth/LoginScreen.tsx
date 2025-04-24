@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Image, Keyboard, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { ActivityIndicator, Button, TextInput } from 'react-native-paper';
 import { AlertNotification } from '../../components/AlertNotification';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const LoginScreen = ({ navigation }: any) => {
 
@@ -52,6 +53,8 @@ export const LoginScreen = ({ navigation }: any) => {
                     }
 
                     if (result.codigo == 200) {
+                        await AsyncStorage.setItem('@KeyUserId', result.data.usuario._id);
+                        await AsyncStorage.setItem('@KeyUser', result.data.usuario.nombre);
                         navigation.navigate('Navigation');
                     } else {
                         setLoading(true);

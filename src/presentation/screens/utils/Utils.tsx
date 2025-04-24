@@ -54,7 +54,7 @@ export const getCurrentDate = () => {
     const diaSemana = dias[fecha.getDay()];
     const dia = fecha.getDate().toString().padStart(2, '0');
     const mes = meses[fecha.getMonth()];
-    const año = fecha.getFullYear();
+    const anio = fecha.getFullYear();
 
     let horas: any= fecha.getHours().toString().padStart(2, '0');
     const minutos = fecha.getMinutes().toString().padStart(2, '0');
@@ -64,7 +64,7 @@ export const getCurrentDate = () => {
     horas = horas === 0 ? 12 : horas; // si es 0, mostrar 12
     const horasStr = horas.toString().padStart(2, '0');
 
-    return `${dia} - ${mes} - ${año} - ${horasStr}:${minutos} ${ampm}`;
+    return `${dia} - ${mes} - ${anio} - ${horasStr}:${minutos} ${ampm}`;
 
 };
 
@@ -102,4 +102,44 @@ export const formatDate = (isoString: string) => {
   hours = hours % 12 || 12; // 0 => 12
 
   return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
+};
+
+export const formatDateDDMMMYYY = (isoString: string) => {
+  const date = new Date(isoString);
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  const ampm = hours >= 12 ? 'p.m.' : 'a.m.';
+  hours = hours % 12 || 12; // 0 => 12
+
+  return `${day}/${month}/${year}`;
+};
+
+export const getCurrentDateDDMMYYYY = () => {
+  const fecha = new Date();
+
+  const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+  const diaSemana = dias[fecha.getDay()];
+  const dia = fecha.getDate().toString().padStart(2, '0');
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+  const anio = fecha.getFullYear();
+
+  let horas: any= fecha.getHours().toString().padStart(2, '0');
+  const minutos = fecha.getMinutes().toString().padStart(2, '0');
+  
+  const ampm = Number(horas) >= 12 ? 'PM' : 'AM';
+  horas = Number(horas) % 12;
+  horas = horas === 0 ? 12 : horas; // si es 0, mostrar 12
+  const horasStr = horas.toString().padStart(2, '0');
+
+  return `${dia}/${mes}/${anio}`;
+
 };

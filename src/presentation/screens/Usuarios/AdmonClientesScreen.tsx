@@ -45,10 +45,27 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
   }
 
   const setClientes = async () => {
+    
+    setLoading(false);
     const oCliente = await getClientes();
-    console.log('isAddUser: ', isAddUser);
     console.log('Gettin clientes: ', oCliente);
-    setOcliente(oCliente);
+    
+    if(oCliente){
+      if(oCliente.length>0){
+        const dataCte = oCliente.filter((item: any) => item.tipoUsuario.tipo === 3); 
+        
+        if(dataCte){
+          if(dataCte.length>0){
+            setOcliente(dataCte);    
+          }
+        }else{
+          setOcliente([]);
+        }
+
+      }
+    }
+
+    //setOcliente(oCliente);
     setLoading(true);
   };
 
@@ -210,22 +227,19 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
 
                       <View style={styles.rowFront}>
 
-                        <View style={{ backgroundColor: "#FFF", flexDirection: 'row', justifyContent: 'space-between', maxWidth: width * 0.8 }}>
-                          <Text style={{ color: '#4B4B4B', fontSize: 15 }}>
-                            {`Nombre: `}<Text style={{ fontWeight: '800' }}>{`${item.nombre} ${item.apellidoP} ${item.apellidoM}`}</Text>
-                          </Text>
+                        <View style={{ backgroundColor: "#FFF", flexDirection: 'row', justifyContent: 'space-between', width: width*0.6, alignSelf: 'center' }}>
+                          <Text style={{ color: '#4B4B4B', fontSize: 15 }}>{`Nombre: `}</Text>
+                          <Text style={{ fontWeight: '800' }}>{`${item.nombre} ${item.apellidoP} ${item.apellidoM}`}</Text>
                         </View>
 
-                        <View style={{ backgroundColor: "#FFF", flexDirection: 'row', justifyContent: 'space-between', maxWidth: width * 0.8 }}>
-                          <Text style={{ color: '#4B4B4B', fontSize: 15 }}>
-                            {`Dirección: `}<Text style={{ fontWeight: '800' }}>{`${item.direccion}`}</Text>
-                          </Text>
+                        <View style={{ backgroundColor: "#FFF", flexDirection: 'row', justifyContent: 'space-between', width: width*0.6, alignSelf: 'center' }}>
+                          <Text style={{ color: '#4B4B4B', fontSize: 15 }}>{`Dirección: `}</Text>
+                          <Text style={{ fontWeight: '800' }}>{`${item.direccion}`}</Text>
                         </View>
 
-                        <View style={{ backgroundColor: "#FFF", flexDirection: 'row', justifyContent: 'space-between', maxWidth: width * 0.8 }}>
-                          <Text style={{ color: '#4B4B4B', fontSize: 15 }}>
-                            {`Celular: `}<Text style={{ fontWeight: '800' }}>{`${item.tel}`}</Text>
-                          </Text>
+                        <View style={{ backgroundColor: "#FFF", flexDirection: 'row', justifyContent: 'space-between', width: width*0.6, alignSelf: 'center' }}>
+                          <Text style={{ color: '#4B4B4B', fontSize: 15 }}>{`Celular: `}</Text>
+                          <Text style={{ fontWeight: '800' }}>{`${item.tel}`}</Text>
                         </View>
                         
                       </View>

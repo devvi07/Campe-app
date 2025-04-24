@@ -7,6 +7,7 @@ import { formatDate, formatMiles, getCurrentDate } from '../utils/Utils';
 import { AlertNotification } from '../../components/AlertNotification';
 import SendIntentAndroid from 'react-native-send-intent';
 import { Dropdown } from 'react-native-paper-dropdown';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const ClienteScreen = ({route,navigation}: any) => {
 
@@ -17,6 +18,7 @@ export const ClienteScreen = ({route,navigation}: any) => {
     const [ pagosIds, setPagosIds ] = useState<any>([]);
     const [metodoPago, setMetodoPago] = useState<string>();
 
+    const [userId, setUserId] = useState<any>('');
     const [titleAlert, setTitleAlert] = useState('');
     const [messageAlert, setMessageAlert] = useState('');
     const [iconAlert, setIconAlert] = useState('');
@@ -71,9 +73,16 @@ export const ClienteScreen = ({route,navigation}: any) => {
         }
     };
 
+    const getUserId = async() => {
+        const userId = await AsyncStorage.getItem('@KeyUserId');
+        setUserId(userId);
+        console.log('userId:', userId);
+    }
+
     useEffect(()=>{
         console.log('Abonar item: ',item);
         //calculaMontos();
+        getUserId();
         addPagosIds();
     },[]);
 
@@ -91,7 +100,8 @@ export const ClienteScreen = ({route,navigation}: any) => {
                     "monto": abono,
                     "metodo": abono == 0 ? 'Sin abono' : metodoPago,
                     "status": abono == 0 ? 'Sin abono' : 'abono',
-                    "fecha": Date.now()
+                    "fecha": Date.now(),
+                    "usuario": userId
                 }),
                 redirect: "follow"
             }).then(async (response) => {
@@ -253,8 +263,16 @@ export const ClienteScreen = ({route,navigation}: any) => {
                     <Button
                         mode="contained"
                         onPress={() => {
+
                             console.log('Confirmar pago!');
                             console.log('abono: ',abono);
+                            console.log('metodoPago: ',metodoPago);
+
+                            if(!metodoPago){
+                                setAlert('Alerta', '¡Debes indicar un metódo de pago!', 'warning');
+                                return; 
+                            }
+                            
                             if(abono == 0 && metodoPago !== 'Sin abono')
                                 setAlert('Alerta', '¡Debes indicar la cantidad del abono!', 'warning');
                             else
