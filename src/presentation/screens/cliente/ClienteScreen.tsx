@@ -230,6 +230,7 @@ export const ClienteScreen = ({route,navigation}: any) => {
                         keyboardType='number-pad'
                         onChangeText={text => setAbono(Number(text))}
                         onSubmitEditing={calculaMontosAcumulados}
+                        onBlur={calculaMontosAcumulados}
                     />
                 </View>
                 
@@ -279,11 +280,17 @@ export const ClienteScreen = ({route,navigation}: any) => {
                                 setAlert('Alerta', '¡Debes indicar un metódo de pago!', 'warning');
                                 return; 
                             }
+
+                            if(metodoPago == 'Sin abono' && abono>0){
+                                setAlert('Alerta', '¡Metódo de pago no valido!', 'warning');
+                                return; 
+                            }
                             
-                            if(abono == 0 && metodoPago !== 'Sin abono')
+                            if(abono == 0 && metodoPago !== 'Sin abono'){
                                 setAlert('Alerta', '¡Debes indicar la cantidad del abono!', 'warning');
-                            else
+                            } else{
                                 creaPago();
+                            }
                             
                         }}
                         buttonColor='#871a29'

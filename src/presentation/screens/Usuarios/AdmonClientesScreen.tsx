@@ -7,6 +7,7 @@ import { FormAddCliente } from '../../components/FormAddCliente';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { ScrollView } from 'react-native-gesture-handler';
+import { requestAllPermissions } from '../utils/Utils';
 
 export const AdmonClientesScreen = ({ route, navigation }: any) => {
 
@@ -67,6 +68,7 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
 
     //setOcliente(oCliente);
     setLoading(true);
+    requestAllPermissions();
   };
 
   const createCliente = async (cliente: any) => {
@@ -138,7 +140,7 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
       "apellidoP": apellidoP,
       "apellidoM": apellidoM,
       "direccion": direccion,
-      "municipio": municipio,
+      "municipio": municipio.trim(),
       "tel": tel,
       "password": "Campe2025",
       "latitud": Number(latitud),

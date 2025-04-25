@@ -4,10 +4,12 @@ import { List } from 'react-native-paper';
 import { PerfilScreen } from '../perfil/PerfilScreen';
 import { AdmonClientesScreen } from '../Usuarios/AdmonClientesScreen';
 import { RutasScreen } from '../rutas/RutasScreen';
+import { ConsultarPagosScreen } from '../consultarPagos/ConsultarPagosScreen';
 
 export type RootStackParams = {
   AdmonClientesScreen: undefined;
   RutasScreen: undefined;
+  ConsultarPagosScreen: undefined;
 }
 
 const Drawer = createDrawerNavigator<RootStackParams>();
@@ -76,6 +78,32 @@ const CustomDrawerContent = (props: any) => {
           </View>
         )}
         onPress={() => props.navigation.navigate("AdmonClientesScreen")}
+      />
+
+<DrawerItem
+        label={() => (
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              marginLeft: -20,
+              marginRight: -40,
+              marginVertical: -15,
+              padding: 15,
+              backgroundColor: currentRoute === "ConsultarPagosScreen" ? "#871a29" : "#FFF"
+            }}
+          >
+            <List.Icon
+              style={{ flex: 1, paddingLeft: 5 }}
+              icon={"cash-register"}
+              color={ currentRoute === "ConsultarPagosScreen" ? "#FFF" :"#871a29" }
+            />
+            <Text style={{ flex: 10, color: currentRoute === "ConsultarPagosScreen" ? "#FFF" :"#871a29", fontSize: 16, textAlignVertical: "center", marginLeft: 20 }}>
+              Consultar pagos
+            </Text>
+          </View>
+        )}
+        onPress={() => props.navigation.navigate("ConsultarPagosScreen")}
       />
 
       <DrawerItem
@@ -149,6 +177,24 @@ export const Navigation = () => {
         }}
         name="AdmonClientesScreen"
         component={AdmonClientesScreen}
+      />
+
+      <Drawer.Screen
+        options={{
+          title: '',
+          headerShown: true,
+          headerStyle: { backgroundColor: '#FFF' },
+          headerTitle: () => (
+            <Image
+              source={require('../../../assets/img/campe.png')}
+              style={{ width: 140, height: 60, resizeMode: 'contain' }}
+            />
+          ),
+          headerTitleAlign: 'center',
+          headerTintColor: '#871a29',
+        }}
+        name="ConsultarPagosScreen"
+        component={ConsultarPagosScreen}
       />
 
     </Drawer.Navigator>

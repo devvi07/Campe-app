@@ -297,6 +297,7 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
                         buttonColor={'#adbc5b'}
                         textColor='#FFF'
                         onPress={() => {
+                          setItemActivo(null);
                           goToCliente(val, item.tel, item._id);
                         }}
                       >
@@ -315,6 +316,7 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
                 buttonColor={'#986400'}
                 textColor='#FFF'
                 onPress={() => {
+                  setItemActivo(null);
                   navigation.navigate('HistorialPagosScreen', { oFactura: item.facturas, item: item });
                 }}
               >

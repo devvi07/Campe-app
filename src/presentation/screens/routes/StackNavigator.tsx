@@ -10,6 +10,7 @@ import { UbicacionClienteScreen } from '../Usuarios/UbicacionClienteScreen';
 import { ImagenClienteScreen } from '../Usuarios/ImagenClienteScreen';
 import { RegistrarPagosScreen } from '../registrarPagos/RegistrarPagosScreen';
 import { PDFScreen } from '../PDF/PDFScreen';
+import { DetallePago } from '../consultarPagos/DetallePago';
 
 
 const Stack = createStackNavigator();
@@ -131,6 +132,20 @@ export const StackNavigator = () => {
                 options={{ 
                     headerShown: true,
                     title:'Historial de pagos PDF',
+                    headerStyle:{
+                        backgroundColor: '#871a29',
+                    },
+                    headerTintColor: '#FFF',
+                    //headerTitleAlign: 'center',
+                }}
+            />
+
+            <Stack.Screen
+                name="DetallePago"
+                component={DetallePago}
+                options={{ 
+                    headerShown: true,
+                    title:'Detalle de pagos',
                     headerStyle:{
                         backgroundColor: '#871a29',
                     },
