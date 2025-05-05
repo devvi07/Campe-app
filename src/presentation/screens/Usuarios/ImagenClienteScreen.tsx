@@ -9,7 +9,8 @@ export const ImagenClienteScreen = ({ route }: any) => {
     return (
         <View style={styles.container}>
             <Image
-                source={{ uri: `data:image/png;base64,${imagen}` }}
+                //source={{ uri: `data:image/png;base64,${imagen}` }}
+                source={{ uri: `${imagen}` }}
                 style={{ width, height }}
             />
         </View>

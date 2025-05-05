@@ -5,11 +5,18 @@ import { PerfilScreen } from '../perfil/PerfilScreen';
 import { AdmonClientesScreen } from '../Usuarios/AdmonClientesScreen';
 import { RutasScreen } from '../rutas/RutasScreen';
 import { ConsultarPagosScreen } from '../consultarPagos/ConsultarPagosScreen';
+import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { RegistroUsuarios } from '../Usuarios/RegistroUsuarios';
+import { DownLoadDataScreen } from '../DownLoad/DownLoadDataScreen';
+import { SyncronizerScreen } from '../Syncronizer/SyncronizerScreen';
 
 export type RootStackParams = {
   AdmonClientesScreen: undefined;
   RutasScreen: undefined;
   ConsultarPagosScreen: undefined;
+  RegistroUsuarios: undefined;
+  SyncronizerScreen: undefined;
 }
 
 const Drawer = createDrawerNavigator<RootStackParams>();
@@ -19,14 +26,26 @@ const CustomDrawerContent = (props: any) => {
 
   const state = props.navigation.getState();
   const currentRoute = state.routes[state.index].name;
+  const [ tipoUsuario, setTipoUsuario ] = useState<any>('');
+  const [ usuario, setUsuario ] = useState<any>('');
+
+  const getTipoUser = async () => {
+    const tipoUsuario = await AsyncStorage.getItem('@KeyTipoUser');
+    const usuario = await AsyncStorage.getItem('@KeyUser');
+    console.log("🚀 ~ getTipoUser ~ tipoUsuario:", tipoUsuario, 'tipo de dato: ',typeof(tipoUsuario))
+    setTipoUsuario(tipoUsuario);
+    setUsuario(usuario);
+  };
+
+  useEffect(()=>{
+    getTipoUser();
+  },[]);
 
   return (
     <DrawerContentScrollView {...props}>
       {/* Header del Drawer */}
       <View style={[styles.headerContainer, { paddingBottom: 20, backgroundColor: '#FFF' }]}>
-        
           <Image source={require("../../../assets/img/campe.png")} style={[styles.logo]} />
-        
       </View>
 
       {/*Opciones del Drawer */}
@@ -40,19 +59,23 @@ const CustomDrawerContent = (props: any) => {
               marginRight: -40,
               marginVertical: -15,
               padding: 15,
-              backgroundColor: currentRoute === "RutasScreen" ? "#871a29" : "#FFF"
+              backgroundColor: "#FFF",
+              borderRadius: 0
             }}
           >
             <List.Icon
               style={{ flex: 1, paddingLeft: 5 }}
-              icon={"source-branch-sync"}
-              color={currentRoute === "RutasScreen" ? "#FFF" :"#871a29"}
+              icon={"face-man-profile"}
+              color={"#5a121c"}
             />
-            <Text style={{ flex: 10, color: currentRoute === "RutasScreen" ? "#FFF" :"#871a29", fontSize: 16, textAlignVertical: "center", marginLeft: 20 }}>Rutas</Text>
+            <Text style={{ flex: 10, color: "#5a121c", fontSize: 18, textAlignVertical: "center", marginLeft: 20, fontWeight: 'bold' }}>
+              {usuario}
+            </Text>
           </View>
         )}
-        onPress={() => props.navigation.navigate("RutasScreen")}
+        onPress={() => {}}
       />
+
 
       <DrawerItem
         label={() => (
@@ -64,23 +87,83 @@ const CustomDrawerContent = (props: any) => {
               marginRight: -40,
               marginVertical: -15,
               padding: 15,
-              backgroundColor: currentRoute === "AdmonClientesScreen" ? "#871a29" : "#FFF"
+              backgroundColor: currentRoute === "RutasScreen" ? "#5a121c" : "#FFF"
             }}
           >
             <List.Icon
               style={{ flex: 1, paddingLeft: 5 }}
-              icon={"account-multiple-plus"}
-              color={ currentRoute === "AdmonClientesScreen" ? "#FFF" :"#871a29" }
+              icon={"source-branch-sync"}
+              color={currentRoute === "RutasScreen" ? "#FFF" :"#5a121c"}
             />
-            <Text style={{ flex: 10, color: currentRoute === "AdmonClientesScreen" ? "#FFF" :"#871a29", fontSize: 16, textAlignVertical: "center", marginLeft: 20 }}>
-              Alta de clientes
+            <Text style={{ flex: 10, color: currentRoute === "RutasScreen" ? "#FFF" :"#5a121c", fontSize: 16, textAlignVertical: "center", marginLeft: 20 }}>
+              Rutas
             </Text>
           </View>
         )}
-        onPress={() => props.navigation.navigate("AdmonClientesScreen")}
+        onPress={() => props.navigation.navigate("RutasScreen")}
       />
 
-<DrawerItem
+      {
+        (tipoUsuario == '2') &&
+        <DrawerItem
+          label={() => (
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                marginLeft: -20,
+                marginRight: -40,
+                marginVertical: -15,
+                padding: 15,
+                backgroundColor: currentRoute === "SyncronizerScreen" ? "#5a121c" : "#FFF"
+              }}
+            >
+              <List.Icon
+                style={{ flex: 1, paddingLeft: 5 }}
+                //icon={"database-sync"}
+                //icon={"web-sync"}
+                icon={"wifi-sync"}
+                color={ currentRoute === "SyncronizerScreen" ? "#FFF" :"#5a121c" }
+              />
+              <Text style={{ flex: 10, color: currentRoute === "SyncronizerScreen" ? "#FFF" :"#5a121c", fontSize: 16, textAlignVertical: "center", marginLeft: 20 }}>
+                Sincronizar
+              </Text>
+            </View>
+          )}
+          onPress={() => props.navigation.navigate("SyncronizerScreen")}
+        />
+      }
+
+      {
+        (tipoUsuario == '4' || tipoUsuario == '1') &&
+        <DrawerItem
+          label={() => (
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                marginLeft: -20,
+                marginRight: -40,
+                marginVertical: -15,
+                padding: 15,
+                backgroundColor: currentRoute === "RegistroUsuarios" ? "#5a121c" : "#FFF"
+              }}
+            >
+              <List.Icon
+                style={{ flex: 1, paddingLeft: 5 }}
+                icon={"account-multiple-plus"}
+                color={ currentRoute === "RegistroUsuarios" ? "#FFF" :"#5a121c" }
+              />
+              <Text style={{ flex: 10, color: currentRoute === "RegistroUsuarios" ? "#FFF" :"#5a121c", fontSize: 16, textAlignVertical: "center", marginLeft: 20 }}>
+                Registro de usuarios
+              </Text>
+            </View>
+          )}
+          onPress={() => props.navigation.navigate("RegistroUsuarios")}
+        />
+      }
+
+      {/*<DrawerItem
         label={() => (
           <View
             style={{
@@ -90,21 +173,50 @@ const CustomDrawerContent = (props: any) => {
               marginRight: -40,
               marginVertical: -15,
               padding: 15,
-              backgroundColor: currentRoute === "ConsultarPagosScreen" ? "#871a29" : "#FFF"
+              backgroundColor: currentRoute === "AdmonClientesScreen" ? "#5a121c" : "#FFF"
+            }}
+          >
+            <List.Icon
+              style={{ flex: 1, paddingLeft: 5 }}
+              icon={"card-account-details"}
+              color={ currentRoute === "AdmonClientesScreen" ? "#FFF" :"#5a121c" }
+            />
+            <Text style={{ flex: 10, color: currentRoute === "AdmonClientesScreen" ? "#FFF" :"#5a121c", fontSize: 16, textAlignVertical: "center", marginLeft: 20 }}>
+              Agregar tarjetas
+            </Text>
+          </View>
+        )}
+        onPress={() => props.navigation.navigate("AdmonClientesScreen",{tipousuario: "tarjeta"})}
+      />*/}
+
+      {
+      (tipoUsuario == '4' || tipoUsuario == '1') &&
+        <DrawerItem
+        label={() => (
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              marginLeft: -20,
+              marginRight: -40,
+              marginVertical: -15,
+              padding: 15,
+              backgroundColor: currentRoute === "ConsultarPagosScreen" ? "#5a121c" : "#FFF"
             }}
           >
             <List.Icon
               style={{ flex: 1, paddingLeft: 5 }}
               icon={"cash-register"}
-              color={ currentRoute === "ConsultarPagosScreen" ? "#FFF" :"#871a29" }
+              color={ currentRoute === "ConsultarPagosScreen" ? "#FFF" :"#5a121c" }
             />
-            <Text style={{ flex: 10, color: currentRoute === "ConsultarPagosScreen" ? "#FFF" :"#871a29", fontSize: 16, textAlignVertical: "center", marginLeft: 20 }}>
-              Consultar pagos
+            <Text style={{ flex: 10, color: currentRoute === "ConsultarPagosScreen" ? "#FFF" :"#5a121c", fontSize: 16, textAlignVertical: "center", marginLeft: 20 }}>
+              Consultar cobros
             </Text>
           </View>
         )}
         onPress={() => props.navigation.navigate("ConsultarPagosScreen")}
       />
+      }
 
       <DrawerItem
         label={() => (
@@ -122,9 +234,9 @@ const CustomDrawerContent = (props: any) => {
             <List.Icon
               style={{ flex: 1, paddingLeft: 5 }}
               icon={"logout"}
-              color={ "#871a29" }
+              color={ "#5a121c" }
             />
-            <Text style={{ flex: 10, color: "#871a29", fontSize: 16, textAlignVertical: "center", marginLeft: 20 }}>Salir</Text>
+            <Text style={{ flex: 10, color: "#5a121c", fontSize: 16, textAlignVertical: "center", marginLeft: 20 }}>Salir</Text>
           </View>
         )}
         onPress={() => props.navigation.navigate("Login")}
@@ -155,7 +267,7 @@ export const Navigation = () => {
             />
           ),
           headerTitleAlign: 'center',
-          headerTintColor: '#871a29',
+          headerTintColor: '#5a121c',
         }}
         name="RutasScreen"
         component={RutasScreen}
@@ -173,7 +285,7 @@ export const Navigation = () => {
             />
           ),
           headerTitleAlign: 'center',
-          headerTintColor: '#871a29',
+          headerTintColor: '#5a121c',
         }}
         name="AdmonClientesScreen"
         component={AdmonClientesScreen}
@@ -191,7 +303,43 @@ export const Navigation = () => {
             />
           ),
           headerTitleAlign: 'center',
-          headerTintColor: '#871a29',
+          headerTintColor: '#5a121c',
+        }}
+        name="SyncronizerScreen"
+        component={SyncronizerScreen}
+      />
+
+      <Drawer.Screen
+        options={{
+          title: '',
+          headerShown: true,
+          headerStyle: { backgroundColor: '#FFF' },
+          headerTitle: () => (
+            <Image
+              source={require('../../../assets/img/campe.png')}
+              style={{ width: 140, height: 60, resizeMode: 'contain' }}
+            />
+          ),
+          headerTitleAlign: 'center',
+          headerTintColor: '#5a121c',
+        }}
+        name="RegistroUsuarios"
+        component={RegistroUsuarios}
+      />
+
+      <Drawer.Screen
+        options={{
+          title: '',
+          headerShown: true,
+          headerStyle: { backgroundColor: '#FFF' },
+          headerTitle: () => (
+            <Image
+              source={require('../../../assets/img/campe.png')}
+              style={{ width: 140, height: 60, resizeMode: 'contain' }}
+            />
+          ),
+          headerTitleAlign: 'center',
+          headerTintColor: '#5a121c',
         }}
         name="ConsultarPagosScreen"
         component={ConsultarPagosScreen}

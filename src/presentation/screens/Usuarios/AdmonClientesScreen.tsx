@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import { ActivityIndicator, TextInput } from 'react-native-paper';
+import { ActivityIndicator, Appbar, TextInput } from 'react-native-paper';
 import { Header } from '../../components/Header';
 import { useUsuariosService } from '../../../hooks/usuarios/useUsuariosService';
 import { FormAddCliente } from '../../components/FormAddCliente';
@@ -8,12 +8,16 @@ import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { ScrollView } from 'react-native-gesture-handler';
 import { requestAllPermissions } from '../utils/Utils';
+import { AlertNotification } from '../../components/AlertNotification';
+import { CAMPE_CONTS } from '../utils/Constantes';
 
 export const AdmonClientesScreen = ({ route, navigation }: any) => {
 
+  const { tipoUsuario } = route.params;
   const isFocused = useIsFocused();
   const { width, height } = useWindowDimensions();
   const [oCliente, setOcliente] = useState([]);
+  const [oClienteAux, setOclienteAux] = useState([]);
   const [isAddUser, setIsAddUser] = useState(false);
   const [nombre, setNombre] = useState('');
   const [apellidoP, setApellidoP] = useState('');
@@ -23,12 +27,72 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
   const [tel, setTel] = useState('');
   const [latitud, setLatitud] = useState('');
   const [longitud, setLongitud] = useState('');
-  const [visita, setVisita] = useState('');
+  const [ruta, setRuta] = useState('');
+  const [cobrador, setCobrador] = useState('');
   const [foto, setFoto] = useState('');
   const [loading, setLoading] = useState(false);
-  const { getClientes } = useUsuariosService({});
+  const { getClientes } = useUsuariosService({ idTipoUsuario: tipoUsuario });
 
   const ActivateAddCliente = () => setIsAddUser(true);
+
+  const [modoBusqueda, setModoBusqueda] = useState(false);
+  const [textoBusqueda, setTextoBusqueda] = useState('');
+  const _handleSearch = () => setModoBusqueda(true);
+
+  const [titleAlert, setTitleAlert] = useState('');
+  const [messageAlert, setMessageAlert] = useState('');
+  const [iconAlert, setIconAlert] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
+
+  const [ deleteUser, setDeleteUser ] = useState(false);
+  const [ itemDelete, setItemDelete ] = useState('');
+
+  const setAlert = (title: string, message: string, icon: string) => {
+    setTitleAlert(title);
+    setMessageAlert(message);
+    setIconAlert(icon);
+    setShowAlert(true);
+  }
+
+  const toggleAlert = () => setShowAlert(!showAlert);
+  
+  const fnAlert = () => {
+    if(deleteUser){
+      toggleAlert();
+      setLoading(false);
+      deleteCliente(itemDelete);
+    }else{
+      toggleAlert();
+    }
+      
+  }
+  
+  const _handleCloseSearch = () => {
+    setModoBusqueda(false);
+    setTextoBusqueda('');
+    setOcliente(oClienteAux);
+  };
+  
+  const _onChangeText = (text: string) => {
+    setTextoBusqueda(text);
+    onSearchCte(text);
+  };
+  
+  const onSearchCte = (text: string) => {
+    if(text.length>0){
+      const result = oClienteAux.filter((item:any) => (
+        item.nombre.toLowerCase().includes(text.toLowerCase()) || 
+        item.apellidoP.toLowerCase().includes(text.toLowerCase()) || 
+        item.apellidoM.toLowerCase().includes(text.toLowerCase()) ||
+        item.direccion.toLowerCase().includes(text.toLowerCase()) || 
+        item.municipio.toLowerCase().includes(text.toLowerCase())
+      ));
+      console.log("🚀 ~ onSearchCte ~ result:", result)
+      setOcliente(result);
+    }else{
+      setOcliente(oClienteAux);
+    }
+  };
 
   const reload = () => {
     setIsAddUser(false);
@@ -40,8 +104,11 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
     setTel('');
     setLatitud('');
     setLongitud('');
-    setVisita('');
+    setRuta('');
+    setCobrador('');
     setFoto('');
+    setDeleteUser(false);
+    setItemDelete('');
     setClientes();
   }
 
@@ -52,21 +119,15 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
     console.log('Gettin clientes: ', oCliente);
     
     if(oCliente){
-      if(oCliente.length>0){
-        const dataCte = oCliente.filter((item: any) => item.tipoUsuario.tipo === 3); 
-        
-        if(dataCte){
-          if(dataCte.length>0){
-            setOcliente(dataCte);    
-          }
-        }else{
-          setOcliente([]);
-        }
-
+      if(oCliente.length>0){ 
+        setOcliente(oCliente);  
+        setOclienteAux(oCliente);
+      }else{
+        setOcliente([]);  
+        setOclienteAux([]);
       }
     }
 
-    //setOcliente(oCliente);
     setLoading(true);
     requestAllPermissions();
   };
@@ -78,7 +139,6 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
       myHeaders.append("Content-Type", "application/json");
 
       console.log('raw -> ', cliente);
-      //await fetch("https://campews.onrender.com/api/usuario/", {
       await fetch("https://campews.onrender.com/api/usuario/", {
         method: "POST",
         headers: myHeaders,
@@ -106,7 +166,6 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
       myHeaders.append("Content-Type", "application/json");
 
       console.log('raw -> ', id);
-      //await fetch(`https://campews.onrender.com/api/usuario/${id}`, {
       await fetch(`https://campews.onrender.com/api/usuario/${id}`, {
         method: "DELETE",
         headers: myHeaders,
@@ -118,6 +177,7 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
       }).then((result) => {
         console.log('result: ', result);
         reload();
+        setLoading(true);
       }).catch((error) => console.error(error));
 
 
@@ -132,22 +192,43 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
 
   const addCliente = async () => {
 
-    console.log('Tamaño en base64:', foto.length);
+    if(
+      nombre.trim().length == 0 ||
+      apellidoP.trim().length == 0 ||
+      apellidoM.trim().length == 0 ||
+      direccion.trim().length == 0 ||
+      municipio.trim().length == 0 ||
+      !tel ||
+      foto.trim().length == 0
+    ){
+      setAlert('Alerta', '¡Todos los campos son obligatorios!', 'warning');
+      return;
+    }
+
+    if(tipoUsuario === CAMPE_CONTS.ID_CLIENTE){
+      if(cobrador.trim().length == 0 || ruta.trim().length == 0){
+        setAlert('Alerta', '¡Todos los campos son obligatorios!', 'warning');
+        return;
+      }
+    }
+    
     setIsAddUser(false);
     setLoading(false);
+
     const cliente = {
-      "nombre": nombre,
-      "apellidoP": apellidoP,
-      "apellidoM": apellidoM,
-      "direccion": direccion,
+      "nombre": nombre.trim(),
+      "apellidoP": apellidoP.trim(),
+      "apellidoM": apellidoM.trim(),
+      "direccion": direccion.trim(),
       "municipio": municipio.trim(),
       "tel": tel,
       "password": "Campe2025",
       "latitud": Number(latitud),
       "longitud": Number(longitud),
-      "dia": visita,
+      "ruta": ruta,
+      "cobrador": cobrador,
       "foto": foto,
-      "tipoUsuario": "67f964ce14b19d709df579ac",
+      "tipoUsuario": tipoUsuario,
       "facturas": [],
     };
 
@@ -155,42 +236,27 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
 
   };
 
+  const goToRegistroUsuarios = () => {
+    setIsAddUser(false);
+    navigation.navigate('RegistroUsuarios');
+  }
+
   useEffect(() => {
     setClientes();
   }, [isFocused]);
 
-  /*useFocusEffect(useCallback(() => {
-    setClientes();
-      return () => {
-        console.log('out alta clientes');
-      };
-    }, [])
-  );*/
-
-  type ItemProps = { title: string };
-
-  const Item = ({ title }: any) => (
-    <View style={styles.item}>
-      <Text style={styles.title}>{title}</Text>
-    </View>
-  );
-
-  const eliminarItem = (id: string) => {
-    Alert.alert('Eliminar', '¿Estás seguro que deseas eliminar esto?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Eliminar',
-        onPress: () => {
-          deleteCliente(id);
-        },
-        style: 'destructive'
-      }
-    ]);
-  };
-
   return (
     <View style={{ flex: 1, backgroundColor: '#FFF' }}>
-      <Header title={'Alta de clientes'} />
+      <Header 
+        title={
+          tipoUsuario == CAMPE_CONTS.ID_ADMINISTRADOR ? 'Alta de administradores':
+          tipoUsuario == CAMPE_CONTS.ID_CLIENTE ? 'Alta de clientes':
+          tipoUsuario == CAMPE_CONTS.ID_COBRADOR ? 'Alta de cobradores':
+          tipoUsuario == CAMPE_CONTS.ID_DIRECTOR ? 'Alta de directores': 'Agregar tarjeta'
+        }
+        iconBack={true}
+        fnBack={goToRegistroUsuarios} 
+      />
 
       <TouchableOpacity onPress={ActivateAddCliente}>
 
@@ -200,18 +266,58 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
             <TextInput.Icon
               icon={'account-plus'}
               size={40}
-              color={'#871a29'}
+              color={'#5a121c'}
               onPress={ActivateAddCliente}
             />
           </View>
 
           <View style={{ justifyContent: 'center', paddingLeft: width * 0.14 }}>
-            <Text style={{ color: '#871a29', fontSize: 15, fontWeight: '900' }}>Agregar cliente</Text>
+            <Text style={{ color: '#5a121c', fontSize: 15, fontWeight: '900' }}>Agregar</Text>
           </View>
 
         </View>
 
       </TouchableOpacity>
+
+      <View>
+        {
+          (oCliente.length > 0 && !isAddUser) &&
+          <Appbar.Header style={{ backgroundColor: '#fbeff0', height: 50 }}>
+          {modoBusqueda ? (
+            <>
+              <Appbar.Action icon="close" color='#5a121c' onPress={_handleCloseSearch} />
+              <TextInput
+                placeholder="Buscar"
+                placeholderTextColor={"#5a121c"}
+                value={textoBusqueda}
+                onChangeText={_onChangeText}
+                style={{ flex: 1, backgroundColor: 'transparent' }}
+                underlineColor="transparent"
+                activeUnderlineColor="#5a121c"
+                autoFocus
+                textColor='#000'
+                onSubmitEditing={() => {
+                  console.log('activo la busqueda');
+                }}
+              />
+            </>
+          ) : (
+            <>
+              <Appbar.Content
+                title="Buscar"
+                titleStyle={{
+                  fontSize: 17,
+                  textAlign: 'center',
+                  color: '#5a121c'
+                }}
+                style={{ backgroundColor: '#fbeff0' }}
+              />
+              <Appbar.Action icon="magnify" color='#5a121c' onPress={_handleSearch} />
+            </>
+          )}
+        </Appbar.Header>
+        }
+      </View>
 
       <ScrollView>
         <View style={{}}>
@@ -220,7 +326,6 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
             (loading && oCliente.length > 0 && !isAddUser) ?
               <>
                 <View>
-             
 
                   <SwipeListView
                     data={oCliente}
@@ -245,7 +350,7 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
                         </View>*/}
 
                         <View style={{ backgroundColor: "#FFF", flexDirection: 'row', justifyContent: 'space-between', width: width*0.6, alignSelf: 'center' }}>
-                          <Text style={{ color: '#4B4B4B', fontSize: 15 }}>{`Ruta: `}</Text>
+                          <Text style={{ color: '#4B4B4B', fontSize: 15 }}>{`Municipio: `}</Text>
                           <Text style={{ fontWeight: '800' }}>{`${item.municipio}`}</Text>
                         </View>
                         
@@ -255,7 +360,7 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
                     renderHiddenItem={({ item }) => (
                       <View style={styles.rowBack}>
 
-                        <TouchableOpacity
+                        {/*<TouchableOpacity
                           style={[styles.backButton, styles.tarjetaButton]}
                           onPress={() => {
                             creaTarjeta(item);
@@ -263,30 +368,35 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
                         >
                           <Text style={styles.textoAccion}>Crear</Text>
                           <Text style={styles.textoAccion}>tarjeta</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity>*/}
 
-                        {/*<TouchableOpacity
+                        <TouchableOpacity
                           style={[styles.backButton, styles.editButton]}
                           onPress={() => {
                             console.log('Editar');
+                            navigation.navigate('EditarUsuario',{ idUser: item._id, tipoUsuario: tipoUsuario });
                           }}
                         >
                           <Text style={styles.textoAccion}>Editar</Text>
-                        </TouchableOpacity>*/}
+                        </TouchableOpacity>
 
-                        {/*<TouchableOpacity
+                        <TouchableOpacity
                           style={[styles.backButton, styles.deleteButton]}
                           onPress={() => {
-                            eliminarItem(item._id);
+                            setItemDelete(item._id);
+                            setDeleteUser(true);
+                            setAlert('Alerta', '¿Estas seguro de eliminar este usuario?', 'warning');
+                            //eliminarItem(item._id);
+
                           }}
                         >
                           <Text style={styles.textoAccion}>Eliminar</Text>
-                        </TouchableOpacity>*/}
+                        </TouchableOpacity>
 
                       </View>
                     )}
-                    //rightOpenValue={-240}
-                    rightOpenValue={-80}
+                    //rightOpenValue={-240} 3 items
+                    rightOpenValue={-160}
                     disableRightSwipe
                   />
 
@@ -332,15 +442,28 @@ export const AdmonClientesScreen = ({ route, navigation }: any) => {
               setTel={setTel}
               setLatitud={setLatitud}
               setLongitud={setLongitud}
-              setVisita={setVisita}
+              setRuta={setRuta}
+              setCobrador={setCobrador}
               foto={foto}
               setFoto={setFoto}
               addCliente={addCliente}
               cancelar={reload}
+              update={false}
+              tipoUsuario={tipoUsuario}
             />
           }
         </View>
       </ScrollView>
+      <AlertNotification
+        title={titleAlert}
+        message={messageAlert}
+        icon={iconAlert}
+        showAlert={showAlert}
+        setShowAlert={setShowAlert}
+        cancelar={deleteUser}
+        toggleAlert={toggleAlert}
+        fnAlert={fnAlert}
+      />
     </View>
   )
 }

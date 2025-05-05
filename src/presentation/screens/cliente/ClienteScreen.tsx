@@ -3,15 +3,19 @@ import { Alert, Linking, Text, View } from 'react-native';
 import { ActivityIndicator, Button, TextInput } from 'react-native-paper';
 import { ImageLibraryOptions, launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { ScrollView } from 'react-native-gesture-handler';
-import { formatDate, formatMiles, getCurrentDate } from '../utils/Utils';
+import { formatDate, formatMiles, getCurrentDate, getCurrentDateDDMMYYYY } from '../utils/Utils';
 import { AlertNotification } from '../../components/AlertNotification';
 import SendIntentAndroid from 'react-native-send-intent';
 import { Dropdown } from 'react-native-paper-dropdown';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { usePagosLocal } from '../../../hooks/database/pagos/usePagosLocal';
+import { useFacturasLocal } from '../../../hooks/database/facturas/useFacturasLocal';
+import { FacturasModel } from '../../../core/models/FacturasModel';
+import { useQuery } from '@realm/react';
 
 export const ClienteScreen = ({route,navigation}: any) => {
 
-    const { item, telCliente, idCliente } = route.params;
+    const { item, telCliente, idCliente, municipio } = route.params;
     const [ montoTotal, setMontoTotal ] = useState(item.total);
     const [ abono, setAbono ] = useState(0);
     const [ resta, setResta ] = useState(item.resta);
@@ -25,6 +29,15 @@ export const ClienteScreen = ({route,navigation}: any) => {
     const [showAlert, setShowAlert] = useState(false);
     const [loading, setLoading] = useState(true);
     const FECHA = getCurrentDate();
+
+    const { insertPago } = usePagosLocal();
+    const { updateFactura } = useFacturasLocal();
+
+    const FACTURAS_LOCAL = useQuery(FacturasModel);
+    const getFacturas = (_id: string) => {
+        const filtrados = FACTURAS_LOCAL.filtered('_id == $0', _id);
+        return Array.from(filtrados);
+    };
 
     const toggleAlert = () => setShowAlert(!showAlert);
 
@@ -45,6 +58,8 @@ export const ClienteScreen = ({route,navigation}: any) => {
         toggleAlert();
         if (iconAlert === 'success'){
             sendWhatsAppMessage(`521${telCliente}`, `Su abono se realizó exitosamente por la cantidad de *${formatMiles(abono.toString().trim(), true)}*. \n *Mubles Campe* agradece su preferencia.`);
+        }else if (iconAlert === 'info'){
+            navigation.goBack();
         }
         
     };
@@ -56,19 +71,18 @@ export const ClienteScreen = ({route,navigation}: any) => {
 
     const sendWhatsAppMessage = async(phone: string, message: string) => {
         Linking.openURL(`whatsapp://send?text=${message}&phone=${phone}`);
+        //navigation.navigate('RegistrarPagosScreen',{ municipio:municipio, recargar: true});
         navigation.goBack();
     };
 
     const addPagosIds = () => {
-        console.log('item.pagos --> ',item.pagos);
         if(item.pagos){
 
             const oIdPago = [];
             for(const idPago of item.pagos){
-                console.log('idPago: ', idPago);
                 oIdPago.push(idPago)
             }
-            console.log('oIdPago -> ',oIdPago);
+            console.log(oIdPago);
             setPagosIds(oIdPago);
         }
     };
@@ -76,7 +90,6 @@ export const ClienteScreen = ({route,navigation}: any) => {
     const getUserId = async() => {
         const userId = await AsyncStorage.getItem('@KeyUserId');
         setUserId(userId);
-        console.log('userId:', userId);
     }
 
     useEffect(()=>{
@@ -86,7 +99,73 @@ export const ClienteScreen = ({route,navigation}: any) => {
         addPagosIds();
     },[]);
 
-    const creaPago = async () => {
+    const creaPago = async() =>{
+        
+        setLoading(false);
+
+        const PAGO: any = [{
+            _id: Date.now().toString(),
+            monto: abono,
+            metodo: abono == 0 ? 'Sin abono' : metodoPago,
+            status: abono == 0 ? 'Sin abono' : 'abono',
+            fecha: new Date().toISOString(),
+            usuario: userId,
+            factura: item._id,
+            action: 'INSERT'
+        }];
+
+        const doPago = await insertPago(PAGO);
+
+        if (doPago == 1) {
+
+            setLoading(true);
+            console.log('idCliente: ',idCliente)
+            let status = abono == 0 ? 'Sin abono' : 'abono';
+            
+            if(resta === 0)
+                status = 'Pagado';
+
+            const oFacturas = getFacturas(item._id);
+            console.log("🚀 ~ creaPago ~ oFacturas:", oFacturas)
+            console.log("🚀 ~ creaPago ~ oFacturas:", oFacturas[0].action)
+            const action = oFacturas[0].action == 'INSERT' ? 'INSERT' : 'UPDATE';
+            const FACTURA: any = [{
+                _id: item._id,
+                articulo: item.articulo,
+                cantidad: item.cantidad,
+                total: item.total,
+                abono: abono,
+                resta: resta,
+                status: status,
+                cliente: idCliente,
+                createdAt: item.createdAt,
+                updatedAt: new Date().toISOString(),
+                action: action,
+            }];
+
+            const doUpdateFactura =  await updateFactura(FACTURA);
+            
+            if(doUpdateFactura == 1){
+                if (abono == 0) {
+                    setAlert('Sin abono', '¡Su visita al cliente a sido registrada en el sistema!', 'info');
+                } else {
+                    setAlert('Pago registrado', '¡Su abono se realizó exitosamente!\nFavor de realizar la confirmación vía whatsapp.', 'success');
+                }
+            }else{
+                setAlert('Error', '¡Ocurrió un error al registrar el pago!', 'error');
+                setLoading(true);
+                return;
+            }
+            
+        }else{
+            setAlert('Error', '¡Ocurrió un error al registrar el pago!', 'error');
+            setLoading(true);
+            return;
+        }
+
+    }
+
+    /*const creaPago = async () => {
         try {
             setLoading(false);
             const myHeaders = new Headers();
@@ -109,7 +188,6 @@ export const ClienteScreen = ({route,navigation}: any) => {
                 const texto = await response.json();
                 return { codigo, texto };
             }).then((result) => {
-                console.log('result: ', result);
                 updateFactura(result.texto._id);
             }).catch((error) => console.error(error));
 
@@ -117,13 +195,10 @@ export const ClienteScreen = ({route,navigation}: any) => {
         } catch (e) {
             console.log('Error al agregar cliente: ', e);
         }
-    }
+    }*/
 
-    const updateFactura = async (idPago: string) => {
+    const updateFacturaOnline = async (idPago: string) => {
         try {
-
-            console.log('Actualizando factura !!!');
-            console.log('idPago: ',idPago);
 
             const oPagosIds = [];
             
@@ -140,7 +215,6 @@ export const ClienteScreen = ({route,navigation}: any) => {
                 status = 'Pagado';
 
             oPagosIds.push(idPago);
-            console.log("🚀 ~ updateFactura ~ oPagosIds:", oPagosIds)
             const myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
 
@@ -163,7 +237,6 @@ export const ClienteScreen = ({route,navigation}: any) => {
                 const texto = await response.text();
                 return { codigo, texto };
             }).then((result) => {
-                console.log('result Factura: ', result);
                 setLoading(true);
                 if(abono == 0){
                     setAlert('Sin abono', '¡Su visita al cliente a sido registrada en el sistema!', 'info');
@@ -201,7 +274,7 @@ export const ClienteScreen = ({route,navigation}: any) => {
                         label="Fecha"
                         value={FECHA}
                         style={{ backgroundColor: '#FFF' }}
-                        theme={{ colors: { primary: '#871a29' } }}
+                        theme={{ colors: { primary: '#5a121c' } }}
                         textColor='#000'
                         editable={false}
                     />
@@ -213,7 +286,7 @@ export const ClienteScreen = ({route,navigation}: any) => {
                         label="Monto total"
                         value={formatMiles(montoTotal.toString(), true)}
                         style={{ backgroundColor: '#FFF' }}
-                        theme={{ colors: { primary: '#871a29' } }}
+                        theme={{ colors: { primary: '#5a121c' } }}
                         textColor='#000'
                         editable={false}
                     />
@@ -225,7 +298,7 @@ export const ClienteScreen = ({route,navigation}: any) => {
                         label="Abono"
                         value={abono.toString()}
                         style={{ backgroundColor: '#FFF' }}
-                        theme={{ colors: { primary: '#871a29' } }}
+                        theme={{ colors: { primary: '#5a121c' } }}
                         textColor='#000'
                         keyboardType='number-pad'
                         onChangeText={text => setAbono(Number(text))}
@@ -258,7 +331,7 @@ export const ClienteScreen = ({route,navigation}: any) => {
                         label="Resta"
                         value={formatMiles(resta.toString(), true)}
                         style={{ backgroundColor: '#FFF' }}
-                        theme={{ colors: { primary: '#871a29' } }}
+                        theme={{ colors: { primary: '#5a121c' } }}
                         textColor='#000'
                         editable={false}
                     />
@@ -272,10 +345,6 @@ export const ClienteScreen = ({route,navigation}: any) => {
                         mode="contained"
                         onPress={() => {
 
-                            console.log('Confirmar pago!');
-                            console.log('abono: ',abono);
-                            console.log('metodoPago: ',metodoPago);
-
                             if(!metodoPago){
                                 setAlert('Alerta', '¡Debes indicar un metódo de pago!', 'warning');
                                 return; 
@@ -283,6 +352,12 @@ export const ClienteScreen = ({route,navigation}: any) => {
 
                             if(metodoPago == 'Sin abono' && abono>0){
                                 setAlert('Alerta', '¡Metódo de pago no valido!', 'warning');
+                                return; 
+                            }
+
+                            ///if(abono>resta){
+                            if(resta<0){
+                                setAlert('Alerta', '¡El abono no es válido!', 'warning');
                                 return; 
                             }
                             
@@ -293,7 +368,7 @@ export const ClienteScreen = ({route,navigation}: any) => {
                             }
                             
                         }}
-                        buttonColor='#871a29'
+                        buttonColor='#5a121c'
                         labelStyle={{ color: '#FFF' }}
                         style={{ borderRadius: 7 }}
                     >

@@ -11,6 +11,10 @@ import { ImagenClienteScreen } from '../Usuarios/ImagenClienteScreen';
 import { RegistrarPagosScreen } from '../registrarPagos/RegistrarPagosScreen';
 import { PDFScreen } from '../PDF/PDFScreen';
 import { DetallePago } from '../consultarPagos/DetallePago';
+import { RutasScreen } from '../rutas/RutasScreen';
+import { EditarUsuario } from '../Usuarios/EditarUsuario';
+import { AddClienteScreen } from '../registrarPagos/AddClienteScreen';
+import { DownLoadDataScreen } from '../DownLoad/DownLoadDataScreen';
 
 
 const Stack = createStackNavigator();
@@ -35,7 +39,7 @@ export const StackNavigator = () => {
                     headerShown: true,
                     title:'Registrar pago',
                     headerStyle:{
-                        backgroundColor: '#871a29',
+                        backgroundColor: '#5a121c',
                     },
                     headerTintColor: '#fff',
                     //headerTitleAlign: 'center',
@@ -49,7 +53,7 @@ export const StackNavigator = () => {
                     headerShown: true,
                     title:'Historial de pagos',
                     headerStyle:{
-                        backgroundColor: '#871a29',
+                        backgroundColor: '#5a121c',
                     },
                     headerTintColor: '#fff',
                     //headerTitleAlign: 'center',
@@ -63,7 +67,7 @@ export const StackNavigator = () => {
                     headerShown: true,
                     title:'Recuperar contraseña',
                     headerStyle:{
-                        backgroundColor: '#871a29',
+                        backgroundColor: '#5a121c ',
                     },
                     headerTintColor: '#fff',
                     //headerTitleAlign: 'center',
@@ -77,7 +81,7 @@ export const StackNavigator = () => {
                     headerShown: true,
                     title:'Crear tarjeta',
                     headerStyle:{
-                        backgroundColor: '#871a29',
+                        backgroundColor: '#5a121c',
                     },
                     headerTintColor: '#FFF',
                     //headerTitleAlign: 'center',
@@ -91,7 +95,7 @@ export const StackNavigator = () => {
                     headerShown: true,
                     title:'Ubicación del cliente',
                     headerStyle:{
-                        backgroundColor: '#871a29',
+                        backgroundColor: '#5a121c ',
                     },
                     headerTintColor: '#FFF',
                     //headerTitleAlign: 'center',
@@ -105,7 +109,7 @@ export const StackNavigator = () => {
                     headerShown: true,
                     title:'Foto / Imagen del clientre',
                     headerStyle:{
-                        backgroundColor: '#871a29',
+                        backgroundColor: '#5a121c',
                     },
                     headerTintColor: '#FFF',
                     //headerTitleAlign: 'center',
@@ -119,7 +123,7 @@ export const StackNavigator = () => {
                     headerShown: true,
                     title:'',
                     headerStyle:{
-                        backgroundColor: '#871a29',
+                        backgroundColor: '#5a121c',
                     },
                     headerTintColor: '#FFF',
                     //headerTitleAlign: 'center',
@@ -133,7 +137,7 @@ export const StackNavigator = () => {
                     headerShown: true,
                     title:'Historial de pagos PDF',
                     headerStyle:{
-                        backgroundColor: '#871a29',
+                        backgroundColor: '#5a121c',
                     },
                     headerTintColor: '#FFF',
                     //headerTitleAlign: 'center',
@@ -145,9 +149,51 @@ export const StackNavigator = () => {
                 component={DetallePago}
                 options={{ 
                     headerShown: true,
-                    title:'Detalle de pagos',
+                    title:'Detalle de cobros',
                     headerStyle:{
-                        backgroundColor: '#871a29',
+                        backgroundColor: '#5a121c',
+                    },
+                    headerTintColor: '#FFF',
+                    //headerTitleAlign: 'center',
+                }}
+            />
+
+            <Stack.Screen
+                name="EditarUsuario"
+                component={EditarUsuario}
+                options={{ 
+                    headerShown: true,
+                    title:'Editar usuario',
+                    headerStyle:{
+                        backgroundColor: '#5a121c',
+                    },
+                    headerTintColor: '#FFF',
+                    //headerTitleAlign: 'center',
+                }}
+            />
+
+            <Stack.Screen
+                name="AddClienteScreen"
+                component={AddClienteScreen}
+                options={{ 
+                    headerShown: true,
+                    title:'Agregar usuario',
+                    headerStyle:{
+                        backgroundColor: '#5a121c',
+                    },
+                    headerTintColor: '#FFF',
+                    //headerTitleAlign: 'center',
+                }}
+            />
+
+            <Stack.Screen
+                name="DownLoadDataScreen"
+                component={DownLoadDataScreen}
+                options={{ 
+                    headerShown: false,
+                    title:'DownLoadDataScreen',
+                    headerStyle:{
+                        backgroundColor: '#5a121c',
                     },
                     headerTintColor: '#FFF',
                     //headerTitleAlign: 'center',

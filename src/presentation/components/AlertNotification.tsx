@@ -27,7 +27,7 @@ export const AlertNotification = (props: any) => {
                             <>
                                 <Text>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</Text>
                                 <Button style={{ borderRadius: 12, backgroundColor: '#C62828', borderColor:'#C62828' }} onPress={props.toggleAlert}>
-                                    Cancelar
+                                    <Text style={{ color:"#FFF" }}>Cancelar</Text>
                                 </Button>
                             </>
                         }

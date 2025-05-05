@@ -7,8 +7,6 @@ export const createCliente = async (cliente: any) => {
         const myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
 
-        console.log('raw -> ',cliente);
-        //await fetch("https://campews.onrender.com/api/usuario/", {
         await fetch("https://campews.onrender.com/api/usuario/", {
             method: "POST",
             headers: myHeaders,

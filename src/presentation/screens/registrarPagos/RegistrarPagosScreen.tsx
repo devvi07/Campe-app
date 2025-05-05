@@ -1,27 +1,70 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { FlatList, Image, StatusBar, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native'
-import { ActivityIndicator, Button, Card, TextInput } from 'react-native-paper';
+import { ActivityIndicator, Appbar, Button, Card, TextInput } from 'react-native-paper';
 import { useUsuariosService } from '../../../hooks/usuarios/useUsuariosService';
 import { formatDateDDMMMYYY, formatMiles, getCurrentDateDDMMYYYY, getInfoNetWork } from '../utils/Utils';
-import { useIsFocused } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';
 import DraggableFlatList from 'react-native-draggable-flatlist';
-
 import Geolocation from 'react-native-geolocation-service';
+import { CAMPE_CONTS } from '../utils/Constantes';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SwipeListView } from 'react-native-swipe-list-view';
+import { useClientesLocal } from '../../../hooks/database/clientes/useClientesLocal';
+import { useQuery } from '@realm/react';
+import { FacturasModel } from '../../../core/models/FacturasModel';
+import { PagosModel } from '../../../core/models/PagosModel';
+import { ClientesModel } from '../../../core/models/ClientesModel';
 
 export const RegistrarPagosScreen = ({ route, navigation }: any) => {
 
-  const { municipio } = route.params;
+  const { dia } = route.params;
+  const routeHook = useRoute();
   const isFocused = useIsFocused();
   const { width, height } = useWindowDimensions();
   const [ oCliente, setOcliente ] = useState<any>([]);
+  const [ oClienteAux, setOclienteAux ] = useState<any>([]);
   const [ loading, setLoading ] = useState(false);
   const [ montos, setMontos ] = useState<any>([]);
-  const { getClientes } = useUsuariosService({});
   const [itemActivo, setItemActivo] = useState<number | null>(null);
   const [isConnected, setIsConnected] = useState(true);
 
+  //const { clientesByRuta } = useClientesLocal({ ruta: dia });
+  const FACTURAS_LOCAL = useQuery(FacturasModel);
+  const PAGOS_LOCAL = useQuery(PagosModel);
+  const clientes = useQuery(ClientesModel);
+
+
   const toggleTarjeta = (index: number) => setItemActivo(prev => (prev === index ? null : index));
+
+  const [modoBusqueda, setModoBusqueda] = useState(false);
+  const [textoBusqueda, setTextoBusqueda] = useState('');
+  const _handleSearch = () => setModoBusqueda(true);
+
+  const _handleCloseSearch = () => {
+    setModoBusqueda(false);
+    setTextoBusqueda('');
+    setOcliente(oClienteAux); // Limpia el filtro al cerrar
+  };
+
+  const _onChangeText = (text: string) => {
+    setTextoBusqueda(text);
+    onSearchCte(text); // Notifica búsqueda al padre
+  };
+
+  const onSearchCte = (text: string) => {
+    if(text.length>0){
+      const result = oClienteAux.filter((item:any) => (
+        item.nombre.toLowerCase().includes(text.toLowerCase()) || 
+        item.apellidoP.toLowerCase().includes(text.toLowerCase()) || 
+        item.apellidoM.toLowerCase().includes(text.toLowerCase())
+      ));
+      console.log("🚀 ~ onSearchCte ~ result:", result)
+      setOcliente(result);
+    }else{
+      setOcliente(oClienteAux);
+    }
+  }; 
 
   const ordenarClientes = (clientes: any[]): any[] => {
     const fechaHoy = getCurrentDateDDMMYYYY();
@@ -36,11 +79,11 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
       const statusA = facturaA?.status || '';
       const statusB = facturaB?.status || '';
   
-      // 1. Si alguno es "Pagado", se va al final
+      // 1. Si alguno es "Pagado", se va al final siempre
       if (statusA === 'Pagado' && statusB !== 'Pagado') return 1;
       if (statusB === 'Pagado' && statusA !== 'Pagado') return -1;
   
-      // 2. Si alguno es 'abono' y con fecha de hoy, se va después
+      // 2. Si alguno es 'abono' con fecha de hoy, se va después
       const esHoyAbonoA = fechaA === fechaHoy && statusA === 'abono';
       const esHoyAbonoB = fechaB === fechaHoy && statusB === 'abono';
   
@@ -50,17 +93,178 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
       // 3. Ordenar el resto por prioridad de status
       const statusPriority = (status: string): number => {
         switch (status) {
-          case 'Sin abono': return 1;
-          case 'abono': return 2;
+          case 'abono': return 1;
+          case '': return 2;
+          case 'Sin abono': return 99; // va al final, pero antes que 'Pagado'
           default: return 3;
         }
       };
   
       return statusPriority(statusA) - statusPriority(statusB);
     });
-  };  
+  };
+
+  const getClientes = async () => {
+    try {
+      const userId = await AsyncStorage.getItem('@KeyUserId');
+      const URI = `https://campews.onrender.com/api/usuario/byCobrador?ruta=${dia}&cobrador=${userId}`; //idDeCobrador
+      console.log("🚀 ~ getClientes ~ URI:", URI);
+      const response = await fetch(URI, {
+        method: 'GET',
+        headers: {
+          contentType: "application/json; charset=ISO-8859-1",
+        }
+      })
+
+      const data = await response.json();
+      return data;
+
+    } catch (e) {
+        return [];
+    }
+  }
   
   const setClientes = async () => {
+    
+    setLoading(false);
+    //const oCliente = await getClientes();
+
+    const oClientesByRuta = () => {
+      if (!clientes || !dia) return [];
+  
+      const filtrados = clientes.filtered('ruta == $0', dia);
+      return Array.from(filtrados); // así te aseguras de tener un array puro
+    };
+
+    const facturasByCliente = (cliente: string) => {
+      const filtrados = FACTURAS_LOCAL.filtered('cliente == $0', cliente);
+      return Array.from(filtrados); // así te aseguras de tener un array puro
+    }
+
+    const pagosByClienteFactura = (factura: string) => {
+      console.log('FILTRAR POR FACTURA -> ',factura);
+      const filtrados = PAGOS_LOCAL.filtered('factura == $0', factura);
+      return Array.from(filtrados); // así te aseguras de tener un array puro
+    }
+    
+    const clientesByRuta = oClientesByRuta();
+
+    console.log('ESTOS SON LOS CLIENTES POR RUTA -> ',clientesByRuta);
+    
+    if(clientesByRuta){
+      if(clientesByRuta.length>0){
+
+        let totalAbonado = 0;
+        let saldoTotal = 0;
+        let abono = 0;
+        let cliente = '';
+        const oMontos = [];
+
+        const oFactura: any[] = [];
+        for(const cliente of clientesByRuta){
+          const facturas = facturasByCliente(cliente._id);
+          console.log("🚀 ~ setClientes ~ facturas:", facturas)
+          for(const tarjeta of facturas)
+            oFactura.push(tarjeta);
+        }
+
+        console.log("🚀 ~ setClientes ~ FACTURAS:", oFactura);
+        
+        const oPagos: any[] = [];
+        for(const factura of oFactura){
+          const pagos = pagosByClienteFactura(factura._id);
+          for(const abono of pagos)
+            oPagos.push(abono);
+        }
+        console.log("🚀 ~ setClientes ~ FACTURAS:", oPagos);
+        //
+        const oCliente = clientesByRuta.map(cliente => {
+          const facturasCliente = oFactura
+            .filter(factura => factura.cliente === cliente._id)
+            .map(factura => {
+              const pagosFactura = oPagos.filter(p => p.factura === factura._id);
+              return {
+                articulo: factura.articulo,
+                cantidad: factura.cantidad,
+                total: factura.total,
+                abono: factura.abono,
+                resta: factura.resta,
+                status: factura.status,
+                createdAt: factura.createdAt,
+                updatedAt: factura.updatedAt,
+                _id: factura._id,
+                pagos: pagosFactura
+              };
+            });
+        
+          return {
+            _id: cliente._id,
+            nombre: cliente.nombre,
+            apellidoP: cliente.apellidoP,
+            apellidoM: cliente.apellidoM,
+            direccion: cliente.direccion,
+            municipio: cliente.municipio,
+            tel: cliente.tel,
+            latitud: cliente.latitud,
+            longitud: cliente.longitud,
+            cobrador: cliente.cobrador,
+            ruta: cliente.ruta,
+            foto: cliente.foto,
+            facturas: facturasCliente
+          };
+        });
+        
+        console.log('OBJETO ARMADO -> ',oCliente);
+
+        for(const tarjeta of oCliente){
+          
+          cliente = tarjeta._id;
+
+          if(tarjeta.facturas.length>0){
+            
+            for(const oPago of tarjeta.facturas){
+              console.log("🚀 ~ setClientes ~ oPago:", oPago)
+              
+              saldoTotal+=oPago.total;
+              abono+=oPago.abono;
+
+              if(oPago.pagos.length>0){
+                for(const total of oPago.pagos){
+                  totalAbonado+= total.monto;
+                }
+              }
+            }
+  
+            oMontos.push({
+              'cliente':cliente,
+              'totalAbonado':totalAbonado,
+              'saldoTotal':saldoTotal,
+              'abono':abono,
+              'resta':Number((saldoTotal-totalAbonado))
+            });
+  
+            totalAbonado = 0;
+            saldoTotal = 0;
+            abono = 0;
+  
+          }
+        }
+
+        console.log('oMontos --->>> ',oMontos);
+        const oClientesSort = ordenarClientes(oCliente);
+        console.log("🚀 ~ setClientes ~ oClientesSort:", oClientesSort)
+    
+        setOcliente(oClientesSort);
+        setOclienteAux(oClientesSort);
+        setMontos(oMontos);
+
+      }
+    }
+
+    setLoading(true);
+  };
+
+  /*const setClientes = async () => {
     
     setLoading(false);
     const oCliente = await getClientes();
@@ -68,16 +272,13 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
     if(oCliente){
       if(oCliente.length>0){
 
-        const clienteRuta = oCliente.filter((item: any)=> item.municipio === municipio);
-        console.log("🚀 ~ setClientes ~ clienteRuta:", clienteRuta)
-
         let totalAbonado = 0;
         let saldoTotal = 0;
         let abono = 0;
         let cliente = '';
         const oMontos = [];
   
-        for(const tarjeta of clienteRuta){
+        for(const tarjeta of oCliente){
           
           cliente = tarjeta._id;
 
@@ -110,21 +311,22 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
           }
         }
 
-        const oClientesSort = ordenarClientes(clienteRuta);
+        const oClientesSort = ordenarClientes(oCliente);
         console.log("🚀 ~ setClientes ~ oClientesSort:", oClientesSort)
-        //setOcliente(clienteRuta);
+    
         setOcliente(oClientesSort);
+        setOclienteAux(oClientesSort);
         setMontos(oMontos);
   
       }
       
     }
     setLoading(true);
-  };
+  };*/
 
   useEffect(()=>{
 
-    navigation.setOptions({ title: `Clientes ruta ${municipio}` });
+    navigation.setOptions({ title: `Clientes ruta ${dia}` });
     setClientes();
   
     const unsubscribe = NetInfo.addEventListener((state: any) => {
@@ -136,7 +338,7 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
   },[isFocused]);
 
   const goToCliente = (item: any, tel: string, id: string) => {
-    navigation.navigate('ClienteScreen',{item: item, telCliente:tel, idCliente:id});
+    navigation.navigate('ClienteScreen',{item: item, telCliente:tel, idCliente:id, dia: dia});
   }
 
   //const Item = ({ item, index, drag }: { item: any; index: number, drag: any }): React.ReactElement => (
@@ -189,7 +391,7 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
                   style={{ width: 90, height: 90, borderRadius: 5 }}
                 />:
                 <Image
-                  source={{ uri: `data:image/png;base64,${item.foto}` }}
+                  source={{ uri: `${item.foto}` }}
                   style={{ width: 90, height: 90, borderRadius: 5 }}
                 />
               }
@@ -265,11 +467,11 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
 
         {
             item.facturas.length>0 &&
-            <View style={{ left: width*0.85, top: -60 }}>
+            <View style={{ left: width*0.85, top: -60 }} >
               <TextInput.Icon
                 icon={ itemActivo === index ?'chevron-up-circle' : 'chevron-right-circle'  }
                 size={27}
-                color={itemActivo === index ? '#871a29' :'#CFD8DC'}
+                color={itemActivo === index ? '#5a121c' :'#CFD8DC'}
                 onPress={() => {
                   toggleTarjeta(index);
                 }}
@@ -279,32 +481,32 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
 
         {
           (itemActivo === index) &&
-          <View style={{ paddingTop: 10 }}>
+          <View style={{ paddingTop: 10 }} >
             <View style={{ flex: 1, backgroundColor: '#871a291A', padding: 10, borderRadius: 5 }}>
               <Text style={{ textAlign: 'center', fontWeight: '700', fontSize: 16 }}>
-                {`Tarjeta(s) de ${item.nombre}`}
+                {`Tarjeta(s) de ${item.nombre} \n`}
               </Text>
 
               <View style={{ marginHorizontal: 20 }}>
               {
-                item.facturas.map((val:any) =>(
-                  <>
-                    <View style={{ marginBottom: 15, marginTop: 15 }}>
-                      <Button
-                        icon="card-account-details"
-                        mode="contained"
-                        style={{ borderRadius: 5 }}
-                        buttonColor={'#adbc5b'}
-                        textColor='#FFF'
-                        onPress={() => {
-                          setItemActivo(null);
-                          goToCliente(val, item.tel, item._id);
-                        }}
-                      >
-                        {`Ver tarjeta de articulo: ${val.articulo}`}
-                      </Button>
-                    </View>
-                  </>
+                item.facturas.map((val:any, index: number) =>(
+                  
+                  <View style={{ marginBottom: 10 }} key={index.toString()}>
+                    <Button
+                      icon="card-account-details"
+                      mode="contained"
+                      style={{ borderRadius: 5 }}
+                      buttonColor={'#5a121c'}
+                      textColor='#FFF'
+                      onPress={() => {
+                        setItemActivo(null);
+                        goToCliente(val, item.tel, item._id);
+                      }}
+                    >
+                      {`Ver tarjeta de articulo: ${val.articulo}`}
+                    </Button>
+                  </View>
+                  
                 ))
                 
               }
@@ -313,8 +515,8 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
                 icon="briefcase-eye" 
                 mode="contained" 
                 style={{ borderRadius: 5 }}
-                buttonColor={'#986400'}
-                textColor='#FFF'
+                buttonColor={'#DEDEDE'}
+                textColor='#000'
                 onPress={() => {
                   setItemActivo(null);
                   navigation.navigate('HistorialPagosScreen', { oFactura: item.facturas, item: item });
@@ -340,13 +542,98 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
       {
         loading ?
           <View style={{ flex: 1, backgroundColor: '#FFF' }}>
+
+            <TouchableOpacity onPress={()=>{ navigation.navigate('AddClienteScreen', { ruta: dia }) }}>
+
+              <View style={{ backgroundColor: '#DEDEDE', height: 50, flexDirection: 'row', justifyContent: 'center' }}>
+
+                <View style={{ justifyContent: 'center' }}>
+                  <TextInput.Icon
+                    icon={'account-plus'}
+                    size={40}
+                    color={'#5a121c'}
+                    onPress={()=>{
+                      navigation.navigate('AddClienteScreen', { ruta: dia })
+                    }}
+                  />
+                </View>
+
+                <View style={{ justifyContent: 'center', paddingLeft: width * 0.14 }}>
+                  <Text style={{ color: '#5a121c', fontSize: 15, fontWeight: '900' }}>Agregar</Text>
+                </View>
+
+              </View>
+
+            </TouchableOpacity>
+
             {
-              oCliente.length>0 ?
-                <FlatList
+              oClienteAux.length>0 ?
+              <>
+                <Appbar.Header style={{ backgroundColor: '#fbeff0', height: 50 }}>
+                {modoBusqueda ? (
+                <>
+                <Appbar.Action icon="close" color='#5a121c' onPress={_handleCloseSearch} />
+                <TextInput
+                  placeholder="Buscar cliente"
+                  placeholderTextColor={"#5a121c"}
+                  value={textoBusqueda}
+                  onChangeText={_onChangeText}
+                  style={{ flex: 1, backgroundColor: 'transparent' }}
+                  underlineColor="transparent"
+                  activeUnderlineColor="#5a121c"
+                  autoFocus
+                  textColor='#000'
+                  onSubmitEditing={()=>{
+                    console.log('activo la busqueda');
+                  }}
+                />
+              </>
+              ) : (
+              <>
+              <Appbar.Content 
+                title="            Buscar cliente"
+                titleStyle={{ 
+                  fontSize: 17, 
+                  textAlign: 'center',
+                  color: '#5a121c' 
+                }} 
+                style={{ backgroundColor: '#fbeff0' }}
+              />
+              <Appbar.Action icon="magnify" color='#5a121c' onPress={_handleSearch} />
+            </>
+            )}
+          </Appbar.Header>
+                
+                {/*<FlatList
                   data={oCliente}
                   renderItem={({ item, index }) => <Item item={item} index={index} />}
                   keyExtractor={(item: any) => item._id}
+                />*/}
+
+                <SwipeListView
+                  data={oCliente}
+                  renderItem={({ item, index }) => <Item item={item} index={index} />}
+                  keyExtractor={(item: any) => item._id}
+                  renderHiddenItem={({ item }) => (
+                    <View style={styles.rowBack}>
+                  
+                      <TouchableOpacity
+                        style={[styles.backButton, styles.tarjetaButton]}
+                        onPress={() => {
+                          //creaTarjeta(item);
+                          navigation.navigate('CrearTarjetaScreen', { oCliente: item });
+                        }}
+                      >
+                        <Text style={styles.textoAccion}>Crear</Text>
+                        <Text style={styles.textoAccion}>tarjeta</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                  rightOpenValue={-80}
+                  disableRightSwipe
                 />
+
+              </>
                 /*<DraggableFlatList
                   data={oCliente}
                   onDragEnd={({ data }:any) => setOcliente(data)}
@@ -389,5 +676,27 @@ const styles = StyleSheet.create({
   },
   card: {
     //marginBottom: 5,
+  },
+  rowBack: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    backgroundColor: '#CCC',
+    paddingRight: 0,
+    height: 105
+  },
+  backButton: {
+    width: 80,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tarjetaButton: {
+    backgroundColor: '#4CAF50',
+  },
+  textoAccion: {
+    color: '#FFF',
+    fontWeight: 'bold',
   },
 });

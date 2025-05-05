@@ -46,10 +46,12 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
   const generarPDF = async () => {
 
     const articulos = oFactura.map((factura: any) => {
+      const divider = oFactura.length>1 ? `<br>` : ``;
       return `
         <p><strong>Articulo:</strong> ${factura.articulo}</p>
         <p><strong>Piezas:</strong> ${factura.cantidad}</p>
         <p><strong>Precio:</strong> ${formatMiles(factura.total, true)}</p>
+        ${divider}
       `;
     }).join('');
 
@@ -213,6 +215,7 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FFF', }} >
+      <ScrollView>
       {
         oFactura.map((factura: any) =>(
 
@@ -244,7 +247,7 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
             </Card>
 
             <View style={{ marginTop: 7 }}>
-              <View style={{ backgroundColor: '#adbc5b', height: 35, borderRadius: 4, justifyContent: 'center' }}>
+              <View style={{ backgroundColor: '#e4aab2', height: 35, borderRadius: 4, justifyContent: 'center' }}>
                 <Text style={{ color: '#FFF', fontWeight: '900', textAlign: 'center', fontSize: 15 }}>Pagos realizados</Text>
               </View>
             </View>            
@@ -252,7 +255,7 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
             {
               factura.pagos.length>0 ?
               <>
-                <ScrollView>
+                
                 {
                   factura.pagos.map((pago: any) =>(
                     <>
@@ -290,59 +293,10 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
 
                 }
 
-                    <View style={{ marginTop: 7 }}>
-                      <View style={{ backgroundColor: '#d84473', height: 35, borderRadius: 4, justifyContent: 'center' }}>
-                        <Text style={{ color: '#FFF', fontWeight: '900', textAlign: 'center', fontSize: 15 }}>Resumen de pagos</Text>
-                      </View>
-                    </View>
-
-                    <Card style={{ borderRadius: 4, backgroundColor: '#FFF' }}>
-                      <Card.Content>
-
-                        <View style={{ marginHorizontal: width * 0.05 }}>
-
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={styles.label}>{`Saldo total:`}</Text>
-                            <Text style={styles.value}>{`${formatMiles(saldoTotal.toString(), true)}`}</Text>
-                          </View>
-
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={styles.label}>{`Abono total:`}</Text>
-                            <Text style={styles.value}>{`${formatMiles(abonoTotal.toString(), true)}`}</Text>
-                          </View>
-
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={styles.label}>{`Resta:`}</Text>
-                            <Text style={styles.value}>{`${formatMiles(restaTotal.toString(), true)}`}</Text>
-                          </View>
-
-                        </View>
-
-
-                      </Card.Content>
-                    </Card>
-
-
-                <View style={{ marginTop: 20 }}>
-                  <Button 
-                    icon="file-document" 
-                    mode="contained" 
-                    onPress={() => {
-                      generarYMostrar();
-                      console.log('Genera PDF');
-                    }}
-                    buttonColor='#FFFF'
-                    textColor='#871a29'
-                    style={{ borderRadius: 7, borderColor: '#CFD8DC', borderWidth: 1 }}
-                  >
-                    Generar PDF
-                  </Button>
-                </View>
-                </ScrollView>
               </>:
-              <View style={{ alignItems: 'center', alignSelf: 'center', marginTop: 150 }}>
+              <View style={{ alignItems: 'center', alignSelf: 'center', marginTop: 90 }}>
                 
-                  <View style={{ top: -80 }}>
+                  <View style={{ top: -58 }}>
                     <TextInput.Icon
                       icon={'cash-remove'}
                       size={120}
@@ -355,10 +309,66 @@ export const HistorialPagosScreen = ({ route, navigation }: any) => {
                 
               </View>
             }
+
           </View>
 
         ))
       }
+
+      <View style={{ marginHorizontal: 10 }}>
+      <View style={{ marginTop: 15 }}>
+          <View style={{ backgroundColor: '#5a121c', height: 35, borderRadius: 4, justifyContent: 'center' }}>
+            <Text style={{ color: '#FFF', fontWeight: '900', textAlign: 'center', fontSize: 15 }}>Resumen de pagos</Text>
+          </View>
+        </View>
+
+        <Card style={{ borderRadius: 4, backgroundColor: '#FFF' }}>
+          <Card.Content>
+
+            <View style={{ marginHorizontal: width * 0.05 }}>
+
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={styles.label}>{`Saldo total:`}</Text>
+                <Text style={styles.value}>{`${formatMiles(saldoTotal.toString(), true)}`}</Text>
+              </View>
+
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={styles.label}>{`Abono total:`}</Text>
+                <Text style={styles.value}>{`${formatMiles(abonoTotal.toString(), true)}`}</Text>
+              </View>
+
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={styles.label}>{`Resta:`}</Text>
+                <Text style={styles.value}>{`${formatMiles(restaTotal.toString(), true)}`}</Text>
+              </View>
+
+            </View>
+
+
+          </Card.Content>
+        </Card>
+
+        {
+          abonoTotal>0 &&
+          <View style={{ marginTop: 20, marginBottom: 20 }}>
+            <Button
+              icon="file-document"
+              mode="contained"
+              onPress={() => {
+                generarYMostrar();
+                console.log('Genera PDF');
+              }}
+              buttonColor='#FFFF'
+              textColor='#5a121c'
+              style={{ borderRadius: 7, borderColor: '#CFD8DC', borderWidth: 1 }}
+            >
+              Generar PDF
+            </Button>
+          </View>
+        }
+      </View>
+
+      </ScrollView>
     </View>
   )
 }

@@ -47,9 +47,10 @@ export const PDFScreen = ({ route, navigation }: any) => {
             <View style={{ marginBottom: height * 0.17, top: 50, alignItems: 'center' }}>
 
                 <TextInput.Icon
-                    icon={'share-circle'}
+                    icon={'share-variant'}
                     size={60}
-                    color={'#871a29'}
+                    color={'#FFFF'}
+                    style={{ backgroundColor: '#5a121c' }}
                     onPress={() => {
                         compartirPDF(rutaPDF);
                     }}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { Header } from '../../components/Header';
-import { ActivityIndicator, Avatar, Card } from 'react-native-paper';
+import { ActivityIndicator, Avatar, Button, Card } from 'react-native-paper';
 import { useIsFocused } from '@react-navigation/native';
 
 export const ConsultarPagosScreen = ({ navigation }: any) => {
@@ -75,7 +75,7 @@ export const ConsultarPagosScreen = ({ navigation }: any) => {
                 titleStyle={{ color: '#000', fontWeight: '700', textAlign: 'center' }}
                 subtitle={`${item.apellidoP} ${item.apellidoM}`}
                 subtitleStyle={{ color: '#000', fontWeight: '700', textAlign: 'center' }}
-                left={(props) => <Avatar.Icon {...props} icon="account-tie" size={66} color='#FFF' style={{ backgroundColor: '#012056' }} />}
+                left={(props) => <Avatar.Icon {...props} icon="account-tie" size={66} color='#FFF' style={{ backgroundColor: '#5a121c' }} />}
                 //right={(props) => <IconButton {...props} icon="dots-vertical" onPress={() => {}} />}
                 style={{
                     borderColor: '#DEDEDE',
@@ -91,17 +91,20 @@ export const ConsultarPagosScreen = ({ navigation }: any) => {
 
     return (
         <View style={{ flex: 1, backgroundColor: '#FFF' }}>
-            <Header title={'Consulta de pagos'} />
+            <Header title={'Consulta de cobros'} />
             {
                 loading ? <>
                     {
                         cobradores.length > 0 ?
-                            <FlatList
-                                data={cobradores}
-                                renderItem={({ item, index }) => <Item item={item} index={index} />}
-                                keyExtractor={(item: any) => item._id}
-                            /> :
-                            <View><Text>No se encontraron registros</Text></View>
+                        <FlatList
+                            data={cobradores}
+                            renderItem={({ item, index }) => <Item item={item} index={index} />}
+                            keyExtractor={(item: any) => item._id}
+                        />
+                        :
+                        <View style={{ marginTop: 150 }}>
+                            <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}>No se encontraron registros</Text>
+                        </View>
 
                     }
                 </> : <View style={{ marginTop: 150 }}>

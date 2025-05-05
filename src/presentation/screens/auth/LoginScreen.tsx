@@ -9,6 +9,7 @@ export const LoginScreen = ({ navigation }: any) => {
     const { width, height } = useWindowDimensions();
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState("");
+    const [sessionUser, setSessionUser] = useState("");
     const [pass, setPass] = useState("");
     const [secureTextEntry, setSecureTextEntry] = useState(true);
     const [titleAlert, setTitleAlert] = useState('');
@@ -55,20 +56,26 @@ export const LoginScreen = ({ navigation }: any) => {
                     if (result.codigo == 200) {
                         await AsyncStorage.setItem('@KeyUserId', result.data.usuario._id);
                         await AsyncStorage.setItem('@KeyUser', result.data.usuario.nombre);
-                        navigation.navigate('Navigation');
+                        await AsyncStorage.setItem('@KeyPass', result.data.usuario.password);
+                        await AsyncStorage.setItem('@KeyTipoUser', result.data.usuario.tipoUsuario.tipo+"");
+                        console.log('result.data.usuario.tipoUsuario.tipo: ',result.data.usuario.tipoUsuario.tipo)
+                        //Este navigation se va a recolocar para realizar el proceso
+                        //de descarga de info local
+                        //navigation.navigate('Navigation');
+                        navigation.navigate('DownLoadDataScreen', { idUser:  result.data.usuario._id});
                     } else {
                         setLoading(true);
-                        setAlert('Error', '¡Ocurrio un error al iniciar sesesión!\nIntentar más tarde.', 'Error');
+                        setAlert('Error', '¡Ocurrio un error al iniciar sesión!\nIntentar más tarde.', 'Error');
                     }
 
                 } else {
                     setLoading(true);
-                    setAlert('Error', '¡Ocurrio un error al iniciar sesesión!\nIntentar más tarde.', 'Error');
+                    setAlert('Error', '¡Ocurrio un error al iniciar sesión!\nIntentar más tarde.', 'Error');
                 }
             }).catch((error) => {
                 setLoading(true);
                 console.error(error);
-                setAlert('Error', '¡Ocurrio un error al iniciar sesesión!\nIntentar más tarde.', 'Error');
+                setAlert('Error', '¡Ocurrio un error al iniciar sesión!\nIntentar más tarde.', 'Error');
             });
 
         } catch (e) {
@@ -90,8 +97,28 @@ export const LoginScreen = ({ navigation }: any) => {
         }
 
         setLoading(false);
-        getAcceso(raw);
 
+        const userName = await AsyncStorage.getItem('@KeyUser');
+
+        if(userName){
+            const userPass = await AsyncStorage.getItem('@KeyPass');
+            console.log("🚀 ~ singIn ~ pass:", pass);
+            console.log("🚀 ~ singIn ~ userPass:", userPass);
+            console.log('NAVEGACION LOCAL');
+            if(pass == userPass){
+                navigation.navigate('Navigation');
+            }else{
+                console.log('ENTRO AL ELSE');
+                setAlert('Alerta', '¡Contraseña incorrecta!', 'warning');
+                setLoading(true);
+                return;
+            }
+                
+            
+        }else{
+            getAcceso(raw);
+        }
+        
     }
 
     const keyBoardListener = () => {
@@ -109,7 +136,15 @@ export const LoginScreen = ({ navigation }: any) => {
         };
     }
 
+    const getSessionUser = async ()=> {
+        const sessionUser = await AsyncStorage.getItem('@KeyUser');
+        if(sessionUser !== null)
+            setUser(sessionUser);
+            
+    }
+
     useEffect(() => {
+        getSessionUser();
         keyBoardListener();
     }, []);
 
@@ -129,8 +164,8 @@ export const LoginScreen = ({ navigation }: any) => {
                                     label="Usuario"
                                     value={user}
                                     onChangeText={text => setUser(text)}
-                                    theme={{ colors: { primary: '#871a29' } }}
-                                    style={{ borderRadius: 7, backgroundColor: '#FFF', borderColor: '#871a29' }}
+                                    theme={{ colors: { primary: '#5a121c' } }}
+                                    style={{ borderRadius: 7, backgroundColor: '#FFF', borderColor: '#5a121c' }}
                                     textColor='#000'
                                     autoCapitalize='none'
                                 />
@@ -139,14 +174,14 @@ export const LoginScreen = ({ navigation }: any) => {
                                 label="Contraseña"
                                 value={pass}
                                 onChangeText={text => setPass(text)}
-                                theme={{ colors: { primary: '#871a29' } }}
-                                style={{ borderRadius: 7, backgroundColor: '#FFF', borderColor: '#871a29' }}
+                                theme={{ colors: { primary: '#5a121c' } }}
+                                style={{ borderRadius: 7, backgroundColor: '#FFF', borderColor: '#5a121c' }}
                                 textColor='#000'
                                 secureTextEntry={secureTextEntry}
                                 right={
                                     <TextInput.Icon
                                         icon={secureTextEntry ? 'eye-off' : 'eye'}
-                                        color={'#871a29'}
+                                        color={'#5a121c'}
                                         onPress={() => {
                                             setSecureTextEntry(!secureTextEntry);
                                         }}
@@ -161,7 +196,7 @@ export const LoginScreen = ({ navigation }: any) => {
                             <Button
                                 mode="contained"
                                 onPress={singIn}
-                                buttonColor='#871a29'
+                                buttonColor='#5a121c'
                                 labelStyle={{ color: '#FFF' }}
                                 style={{ borderRadius: 7 }}
                             >
