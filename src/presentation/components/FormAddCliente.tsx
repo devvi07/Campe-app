@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import { ActivityIndicator, Button, Divider, TextInput } from 'react-native-paper';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Text, Image } from 'react-native';
+import { ActivityIndicator, Button, Card, Divider, IconButton, Paragraph, TextInput } from 'react-native-paper';
 import { Dropdown } from 'react-native-paper-dropdown';
 import Geolocation from 'react-native-geolocation-service';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { ImageLibraryOptions, launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { ScrollView } from 'react-native-gesture-handler';
+import { CAMPE_CONTS } from '../screens/utils/Constantes';
+import { useUsuariosService } from '../../hooks/usuarios/useUsuariosService';
 
 
 type addClienteProps = {
@@ -23,21 +25,24 @@ type addClienteProps = {
     setTel: (tel: string) => void,
     setLatitud: (latitud: string) => void,
     setLongitud: (latitud: string) => void,
-    setVisita: (visita: string) => void, 
+    setRuta: (visita: string) => void, 
+    setCobrador: (visita: string) => void, 
     foto: string,
     setFoto: (foto: string) => void, 
     addCliente: any, 
-    cancelar: any 
+    cancelar: any, 
+    update: boolean,
+    tipoUsuario: string 
 }
 
 const DIAS = [
-    { label: 'Lunes', value: 'Lunes' },
-    { label: 'Martes', value: 'Martes' },
-    { label: 'Miércoles', value: 'Miércoles' },
-    { label: 'Jueves', value: 'Jueves' },
-    { label: 'Viernes', value: 'Viernes' },
-    { label: 'Sábado', value: 'Sábado' },
-    { label: 'Domingo', value: 'Domingo' },
+    { label: 'Ruta 1 (Lunes)', value: 'Lunes' },
+    { label: 'Ruta 2 (Martes)', value: 'Martes' },
+    { label: 'Ruta 3 (Miércoles', value: 'Miércoles' },
+    { label: 'Ruta 4 (Jueves)', value: 'Jueves' },
+    { label: 'Ruta 5 (Viernes)', value: 'Viernes' },
+    { label: 'Ruta 6 (Sábado)', value: 'Sábado' },
+    { label: 'Ruta 7 (Domingo)', value: 'Domingo' },
 ];
 
 export const FormAddCliente = ({ 
@@ -49,17 +54,24 @@ export const FormAddCliente = ({
     tel, setTel, 
     setLatitud,
     setLongitud,
-    setVisita,
+    setRuta,
+    setCobrador,
     foto, setFoto,
     addCliente,
-    cancelar
+    cancelar,
+    update,
+    tipoUsuario
 } : addClienteProps) => {
 
     const [dia, setDia] = useState<string>();
     const [ loading, setLoading ] = useState(true);
+    const [ cobradores, setCobradores ] = useState<any>([]);
+    const [ cobrador, setSCobrador ] = useState('');
+
+    const { getClientes } = useUsuariosService({ idTipoUsuario: CAMPE_CONTS.ID_COBRADOR });
 
     const selectDia = (dia: string) => {
-        setVisita(dia);
+        setRuta(dia);
         setDia(dia);
     };
 
@@ -119,6 +131,30 @@ export const FormAddCliente = ({
         },
     };
 
+    const getCobradores = async() => {
+        setLoading(false);
+        const cobradores = await getClientes();
+        
+        const oCobrador = [];
+
+        for(const cobrador of cobradores){
+            oCobrador.push(
+                { label: `${cobrador.nombre} ${cobrador.apellidoP} ${cobrador.apellidoM}`, value: cobrador._id },
+            );
+        }
+
+        setCobradores(oCobrador);
+        setLoading(true);
+        console.log("🚀 ~ getCobradores ~ cobradores:", cobradores)
+    };
+
+    useEffect(()=>{
+        
+        if(tipoUsuario === CAMPE_CONTS.ID_CLIENTE)
+            getCobradores();
+        
+    },[]);
+
     return (
         <View style={{ padding: 13 }}>
 
@@ -126,113 +162,156 @@ export const FormAddCliente = ({
                 loading ? <>
                 <TextInput
                     mode='outlined'
-                    label="Nombre"
+                    label="Nombre *"
                     value={nombre}
                     onChangeText={text => setNombre(text)}
                     style={{ backgroundColor: '#FFF' }}
-                    theme={{ colors: { primary: '#871a29' } }}
+                    theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                     textColor='#000'
                 />
 
                 <TextInput
                     mode='outlined'
-                    label="Apellido paterno"
+                    label="Apellido paterno *"
                     value={apellidoP}
                     onChangeText={text => setApellidoP(text)}
                     style={{ backgroundColor: '#FFF' }}
-                    theme={{ colors: { primary: '#871a29' } }}
+                    theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                     textColor='#000'
                 />
 
                 <TextInput
                     mode='outlined'
-                    label="Apellido materno"
+                    label="Apellido materno *"
                     value={apellidoM}
                     onChangeText={text => setApellidoM(text)}
                     style={{ backgroundColor: '#FFF' }}
-                    theme={{ colors: { primary: '#871a29' } }}
+                    theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                     textColor='#000'
                 />
 
                 <TextInput
                     mode='outlined'
-                    label="Dirección"
+                    label="Dirección *"
                     value={direccion}
                     onChangeText={text => setDireccion(text)}
                     style={{ backgroundColor: '#FFF' }}
-                    theme={{ colors: { primary: '#871a29' } }}
+                    theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                     textColor='#000'
                     keyboardType='email-address'
                 />
 
                 <TextInput
                     mode='outlined'
-                    label="Municipio"
+                    label="Municipio *"
                     value={municipio}
                     onChangeText={text => setMunicipio(text)}
                     style={{ backgroundColor: '#FFF' }}
-                    theme={{ colors: { primary: '#871a29' } }}
+                    theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                     textColor='#000'
                 />
 
                 <TextInput
                     mode='outlined'
-                    label="Celular"
+                    label="Celular *"
                     value={tel}
                     onChangeText={text => setTel(text)}
                     style={{ backgroundColor: '#FFF' }}
-                    theme={{ colors: { primary: '#871a29' } }}
+                    theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                     textColor='#000'
                     keyboardType= 'phone-pad'
                 />
 
-                <View style={{ marginTop: 7 }}>
-                    <Dropdown
-                        label={"Día de visita"}
-                        placeholder={"Selecciona día de visita"}
-                        options={DIAS}
-                        value={dia}
-                        onSelect={(val: any) => {
-                            selectDia(val);
-                        }}
-                        menuContentStyle={{ backgroundColor: '#871a29' }}
-                        /*CustomDropdownInput={(props) => (
-                            <TextInput
-                              {...props}
-                              theme={customTheme}
-                              style={{ backgroundColor: customTheme.colors.background }}
-                            />
-                        )}*/
-                    />
-                </View>
-                
-                        <View style={{ marginTop: 7 }}>
+                {
+                    (tipoUsuario == CAMPE_CONTS.ID_CLIENTE) &&
+                    <>
+                    <View style={{ marginTop: 7 }}>
+                        <Dropdown
+                            label={"Asignar cobrador *"}
+                            placeholder={"Asignar cobrador *"}
+                            options={cobradores}
+                            value={cobrador}
+                            onSelect={(val: any) => {
+                                setCobrador(val);
+                                setSCobrador(val);
+                            }}
+                            menuContentStyle={{ backgroundColor: '#000' }}
+                        />
+                    </View>
+                    <View style={{ marginTop: 7 }}>
+                        <Dropdown
+                            label={"Asignar ruta *"}
+                            placeholder={"Asignar ruta *"}
+                            options={DIAS}
+                            value={dia}
+                            onSelect={(val: any) => {
+                                selectDia(val);
+                            }}
+                            menuContentStyle={{ backgroundColor: '#000' }}
+                        />
+                    </View>
+                    </>
+                }
+                    
+                    <View style={{  }}>
+                        <Card 
+                            style={{ margin: 16 }}
+                            onPress={async () => {
 
-                            <Button
-                                mode="contained"
-                                onPress={async () => {
+                                const result = await launchCamera({
+                                    mediaType: 'photo',
+                                    includeBase64: true,
+                                    quality: 0.7,
+                                    cameraType: 'back'
+                                });
 
-                                    const result = await launchCamera({
-                                        mediaType: 'photo',
-                                        includeBase64: true,
-                                        quality: 0.7,
-                                        cameraType: 'back'
+                                if (result.assets && result.assets[0].uri) {
+                                    setLoading(false);
+                                    const image = result.assets[0];
+                                    const data = new FormData();
+                                    data.append('file', {
+                                        uri: image.uri,
+                                        type: image.type,
+                                        name: image.fileName,
+                                    });
+                                    data.append('upload_preset', 'campe-app'); // lo configuras en Cloudinary
+
+                                    const res = await fetch('https://api.cloudinary.com/v1_1/dyfx8jypt/image/upload', {
+                                        method: 'POST',
+                                        body: data,
                                     });
 
-                                    if (result.assets && result.assets[0].uri) {
-                                        console.log('Base64 -> ', result.assets[0].base64);
-                                        setFoto(result.assets[0].base64 ?? '');
-                                        //setFoto('test');
-                                    }
-                                }}
-                                buttonColor='#000'
-                                labelStyle={{ color: '#FFF' }}
-                                style={{ borderRadius: 7 }}
-                            >
-                                Tomar foto
-                            </Button>
+                                    const json = await res.json();
+                                    console.log('json.secure_url -> ', json.secure_url)
+                                    setFoto(json.secure_url ?? '');
+                                    setLoading(true);
+                                    //return json.secure_url; // esta es la URL para guardar
+                                }
+                            }} 
+                        >
+                            <View style={{ height: 140, justifyContent: 'center', alignItems: 'center', backgroundColor: '#eee' }}>
+                                {
+                                    foto.length>0 ?
+                                    <Image
+                                        source={{ uri: `${foto}` }}
+                                        style={{ width: 250, height: 125, borderRadius: 5 }}
+                                    />
+                                    :
+                                    <IconButton icon="camera" size={100} style={{ backgroundColor: '#fFFF' }} />
+                                }
+                            </View>
+                            <Card.Title 
+                                title="Tomar foto *"
+                                titleStyle={{ textAlign: 'center', color: '#000', fontWeight: '700' }}
+                                style={{ 
+                                    backgroundColor: '#f0cdd1', 
+                                    borderBottomEndRadius: 7, 
+                                    borderBottomLeftRadius: 7 
+                                }} 
+                            />
 
-                        </View>
+                        </Card>
+                    </View>
 
                 {/*<View style={{ marginTop: 7 }}>
                     <Button
@@ -240,8 +319,8 @@ export const FormAddCliente = ({
                         mode="contained"
                         onPress={ getLocation }
                         buttonColor='#FFF'
-                        labelStyle={{ color: '#C62828' }}
-                        style={{ borderRadius: 7, borderColor: '#871a29', borderWidth: 0.5 }}
+                        labelStyle={{ color: '#5a121c' }}
+                        style={{ borderRadius: 7, borderColor: '#5a121c', borderWidth: 0.5 }}
                     >
                         Obtener ubicación
                     </Button>
@@ -253,18 +332,20 @@ export const FormAddCliente = ({
 
                 <View style={{ marginTop: 15 }}>
                     <Button
+                        icon={update ? 'update':'plus-circle'}
                         mode="contained"
                         onPress={ addCliente }
-                        buttonColor='#871a29'
+                        buttonColor='#5a121c'
                         labelStyle={{ color: '#FFF' }}
                         style={{ borderRadius: 7 }}
                     >
-                        Registrar cliente
+                        { update ? 'Actualizar' : 'Registrar' }
                     </Button>
                 </View>
 
                 <View style={{ marginTop: 10 }}>
                     <Button
+                        icon={'account-cancel'}
                         mode="contained"
                         onPress={cancelar}
                         buttonColor='#DEDEDE'
@@ -275,7 +356,7 @@ export const FormAddCliente = ({
                     </Button>
                 </View>
                 </>:<>
-                <View style={{ marginTop: 150 }}>
+                <View style={{ marginTop: 200 }}>
                     <ActivityIndicator animating={true} color={'#871a29'} size={50}/>
                 </View>
                 </>

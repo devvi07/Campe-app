@@ -6,57 +6,75 @@ import { Header } from '../../components/Header';
 
 export const RutasScreen = ({ route, navigation }: any) => {
 
-  const isFocused = useIsFocused();
-  const [ loading, setLoading ] = useState(false);
-  const [ rutas, setRutas ] = useState([]);
+  const [ loading, setLoading ] = useState(true);
 
-  const getRutas = async () => {
-    try {
-      setLoading(false);
-      //const URI = `https://campews.onrender.com/api/usuario/`;
-      const URI = `http://192.168.0.103:3000/api/rutas/`;
-      const response = await fetch(URI, {
-        method: 'GET',
-        headers: {
-          contentType: "application/json; charset=ISO-8859-1",
-        }
-      })
-
-      const data = await response.json();
-      setRutas(data);
-      setLoading(true);
-
-    } catch (e) {
-      setRutas([]);
-      setLoading(true);
+  const RUTAS = [
+    {
+      "_id": "6813e2aaeb726df6df605119",
+      "nombre": "Ruta 1",
+      "dia": "Lunes",
+      "__v": 0
+    },
+    {
+      "_id": "6813e2b6eb726df6df60511b",
+      "nombre": "Ruta 2",
+      "dia": "Martes",
+      "__v": 0
+    },
+    {
+      "_id": "6813e2c4eb726df6df60511d",
+      "nombre": "Ruta 3",
+      "dia": "Miércoles",
+      "__v": 0
+    },
+    {
+      "_id": "6813e2ddeb726df6df60511f",
+      "nombre": "Ruta 4",
+      "dia": "Jueves",
+      "__v": 0
+    },
+    {
+      "_id": "6813e2e8eb726df6df605121",
+      "nombre": "Ruta 5",
+      "dia": "Viernes",
+      "__v": 0
+    },
+    {
+      "_id": "6813e2f5eb726df6df605123",
+      "nombre": "Ruta 6",
+      "dia": "Sábado",
+      "__v": 0
+    },
+    {
+      "_id": "6813e2ffeb726df6df605125",
+      "nombre": "Ruta 7",
+      "dia": "Domingo",
+      "__v": 0
     }
-  }
-
-  useEffect(()=>{
-    getRutas();
-  },[isFocused]);
+  ];
 
   const Item = ({ item, index }: { item: any; index: number }) =>(
       <TouchableOpacity
         onPress={()=>{
-          console.log('Ruta seleccionada -> ',item.municipio);
-          navigation.navigate('RegistrarPagosScreen',{ municipio:  item.municipio})
+          console.log('Ruta seleccionada -> ',item.dia);
+          navigation.navigate('RegistrarPagosScreen',{ dia:  item.dia, recargar: true})
         }}
       >
         <Card.Title
           title={`${item.nombre}`}
           titleStyle={{ color: '#000', fontWeight: '700', textAlign: 'center' }}
-          subtitle={`${item.municipio}`}
+          subtitle={`${item.dia}`}
           subtitleStyle={{ color: '#000', fontWeight: '700', textAlign: 'center' }}
-          left={(props) => <Avatar.Icon {...props} icon="map-marker-radius" size={60} color='#FFF' style={{ backgroundColor: '#871a29'}} />}
+          left={(props) => <Avatar.Icon {...props} icon="source-branch" size={60} color='#FFF' style={{ backgroundColor: '#5a121c'}} />}
           //right={(props) => <IconButton {...props} icon="dots-vertical" onPress={() => {}} />}
           style={{ 
             borderColor: '#DEDEDE', 
             borderWidth: 1.3, 
             marginHorizontal: 20, 
-            marginTop: 10, 
+            marginTop: 5, 
+            marginBottom: 5, 
             borderRadius: 7,
-            padding: 25
+            padding: 20
           }}
         />
       </TouchableOpacity>
@@ -68,16 +86,19 @@ export const RutasScreen = ({ route, navigation }: any) => {
       {
         loading?<>
         {
-          rutas.length>0 ?
+          RUTAS.length>0 ?
           <FlatList
-            data={rutas}
+            data={RUTAS}
             renderItem={({ item, index }) => <Item item={item} index={index} />}
             keyExtractor={(item: any) => item._id}
-          />:
-          <View><Text>No se encontraron registros</Text></View>
+          />
+          :
+          <View style={{ marginTop: 150 }}>
+            <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}>No se encontraron registros</Text>
+          </View>
           
         }
-        </>:<View style={{ marginTop: 150 }}>
+        </>:<View style={{ marginTop: 200 }}>
           <ActivityIndicator animating={true} color={'#871a29'} size={50} />
         </View>
       }
