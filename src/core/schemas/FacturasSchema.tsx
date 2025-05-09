@@ -12,6 +12,7 @@ const FacturasSchema: Realm.ObjectSchema = {
         cliente: 'string',
         createdAt: 'string',
         updatedAt: 'string',
+        pagos: 'string',
         action: 'string'
     },
 };

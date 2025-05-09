@@ -1,0 +1,1 @@
+export const CAMPE_LOADING = 'https://res.cloudinary.com/dyfx8jypt/image/upload/v1746631806/Dise%C3%B1o_sin_t%C3%ADtulo_f1qfxd.gif';

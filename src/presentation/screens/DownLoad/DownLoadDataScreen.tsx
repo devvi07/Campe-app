@@ -51,6 +51,9 @@ export const DownLoadDataScreen = ({ route, navigation }: any) => {
                 cobrador: cliente.cobrador,
                 ruta: cliente.ruta,
                 foto: cliente.foto,
+                uri: '',
+                type: '',
+                namePhoto: '',
                 createdAt: cliente.createdAt,
                 updatedAt: cliente.updatedAt,
                 action: 'NONE',
@@ -58,22 +61,12 @@ export const DownLoadDataScreen = ({ route, navigation }: any) => {
 
             if(cliente.facturas.length>0){
                 for(const factura of cliente.facturas){
-                    oDataFacturas.push({
-                        _id: factura._id,
-                        articulo: factura.articulo,
-                        cantidad: factura.cantidad,
-                        total: factura.total,
-                        abono: factura.abono,
-                        resta: factura.resta,
-                        status: factura.status,
-                        cliente: cliente._id,
-                        createdAt: factura.createdAt,
-                        updatedAt: factura.updatedAt,
-                        action: 'NONE',
-                    });
 
+                    let idPagos = '';
+                    let ids: string[] = [];
                     if(factura.pagos.length){
                         for(const pago of factura.pagos){
+                            ids.push(pago._id);
                             oDataPagos.push({
                                 _id: pago._id,
                                 monto: pago.monto,
@@ -85,7 +78,23 @@ export const DownLoadDataScreen = ({ route, navigation }: any) => {
                                 action: 'NONE',
                             });
                         }
+                        idPagos = ids.join(',');
                     }
+
+                    oDataFacturas.push({
+                        _id: factura._id,
+                        articulo: factura.articulo,
+                        cantidad: factura.cantidad,
+                        total: factura.total,
+                        abono: factura.abono,
+                        resta: factura.resta,
+                        status: factura.status,
+                        cliente: cliente._id,
+                        createdAt: factura.createdAt,
+                        updatedAt: factura.updatedAt,
+                        pagos: idPagos,
+                        action: 'NONE',
+                    });
                 }
             }
         }

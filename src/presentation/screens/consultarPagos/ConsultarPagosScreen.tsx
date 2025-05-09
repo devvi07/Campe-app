@@ -107,7 +107,7 @@ export const ConsultarPagosScreen = ({ navigation }: any) => {
                         </View>
 
                     }
-                </> : <View style={{ marginTop: 150 }}>
+                </> : <View style={{ marginTop: 200 }}>
                     <ActivityIndicator animating={true} color={'#871a29'} size={50} />
                 </View>
             }

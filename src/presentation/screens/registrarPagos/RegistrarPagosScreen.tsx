@@ -126,25 +126,27 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
   
   const setClientes = async () => {
     
+    setOcliente([]);
+    setOclienteAux([]);
+    setMontos([]);
     setLoading(false);
-    //const oCliente = await getClientes();
 
     const oClientesByRuta = () => {
       if (!clientes || !dia) return [];
   
       const filtrados = clientes.filtered('ruta == $0', dia);
-      return Array.from(filtrados); // así te aseguras de tener un array puro
+      return Array.from(filtrados);
     };
 
     const facturasByCliente = (cliente: string) => {
       const filtrados = FACTURAS_LOCAL.filtered('cliente == $0', cliente);
-      return Array.from(filtrados); // así te aseguras de tener un array puro
+      return Array.from(filtrados);
     }
 
     const pagosByClienteFactura = (factura: string) => {
       console.log('FILTRAR POR FACTURA -> ',factura);
       const filtrados = PAGOS_LOCAL.filtered('factura == $0', factura);
-      return Array.from(filtrados); // así te aseguras de tener un array puro
+      return Array.from(filtrados); 
     }
     
     const clientesByRuta = oClientesByRuta();
@@ -350,9 +352,9 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
         styles.card,
         { 
           backgroundColor: item.facturas.length == 0 
-            ? "#F7F7F7" : (item.facturas[0].status == "abono" && formatDateDDMMMYYY(item.facturas[0].updatedAt) == getCurrentDateDDMMYYYY()) ? '#ebfbd8' :
+            ? "#F7F7F7" : (item.facturas[0].status == "abono" && formatDateDDMMMYYY(item.facturas[0].updatedAt) == getCurrentDateDDMMYYYY()) ? '#bfd7ed' :
             (item.facturas[0].status == "Sin abono" &&formatDateDDMMMYYY(item.facturas[0].updatedAt) == getCurrentDateDDMMYYYY()) ? '#fffba4' :
-            item.facturas[0].status == "Pagado" ? '#1a7f2f' : '#FFF',  
+            item.facturas[0].status == "Pagado" ? '#ebfbd8' : '#FFF',  
           borderRadius: 0
         }
       ]}
@@ -365,14 +367,35 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
             <Text style={{ textAlign: 'center', fontWeight: '800', fontSize: 16 }}>
               {'CLIENTE SIN TARJETA\n'}
             </Text>
-          }
+        }
+
+        {
+          (item.facturas[0].status == "abono" && formatDateDDMMMYYY(item.facturas[0].updatedAt) == getCurrentDateDDMMYYYY()) && 
+            <Text style={{ textAlign: 'center', fontWeight: '800', fontSize: 16 }}>
+              {'Abono puntual\n'}
+            </Text>
+        }
+
+        {
+          (item.facturas[0].status == "Pagado") && 
+            <Text style={{ textAlign: 'center', fontWeight: '800', fontSize: 16 }}>
+              {'Articulo pagado\n'}
+            </Text>
+        }
+
+        {
+          (item.facturas[0].status == "Sin abono" &&formatDateDDMMMYYY(item.facturas[0].updatedAt) == getCurrentDateDDMMYYYY()) && 
+            <Text style={{ textAlign: 'center', fontWeight: '800', fontSize: 16 }}>
+              {'Visita sin abono\n'}
+            </Text>
+        }
 
         <View 
           style={{ 
             backgroundColor: item.facturas.length == 0 
-            ? "#F7F7F7" : (item.facturas[0].status == "abono" && formatDateDDMMMYYY(item.facturas[0].updatedAt) == getCurrentDateDDMMYYYY()) ? '#ebfbd8' :
+            ? "#F7F7F7" : (item.facturas[0].status == "abono" && formatDateDDMMMYYY(item.facturas[0].updatedAt) == getCurrentDateDDMMYYYY()) ? '#bfd7ed' :
             (item.facturas[0].status == "Sin abono" &&formatDateDDMMMYYY(item.facturas[0].updatedAt) == getCurrentDateDDMMYYYY()) ? '#fffba4' :
-            item.facturas[0].status == "Pagado" ? '#1a7f2f' : '#FFF', 
+            item.facturas[0].status == "Pagado" ? '#ebfbd8' : '#FFF', 
             flexDirection: 'row' 
           }}
         >
@@ -471,7 +494,7 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
               <TextInput.Icon
                 icon={ itemActivo === index ?'chevron-up-circle' : 'chevron-right-circle'  }
                 size={27}
-                color={itemActivo === index ? '#5a121c' :'#CFD8DC'}
+                color={itemActivo === index ? '#5a121c' :'#707070'}
                 onPress={() => {
                   toggleTarjeta(index);
                 }}
@@ -612,15 +635,25 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
 
                 <SwipeListView
                   data={oCliente}
-                  renderItem={({ item, index }) => <Item item={item} index={index} />}
+                  renderItem={({ item, index }) => <View style={{ width: '100%' }}><Item item={item} index={index} /></View>}
                   keyExtractor={(item: any) => item._id}
-                  renderHiddenItem={({ item }) => (
-                    <View style={styles.rowBack}>
+                  renderHiddenItem={({ item }, rowMap) => (
+                    <View style={[ styles.rowBack, { height: '100%' } ]}>
                   
                       <TouchableOpacity
                         style={[styles.backButton, styles.tarjetaButton]}
                         onPress={() => {
-                          //creaTarjeta(item);
+
+                          console.log('rowMap keys:', Object.keys(rowMap));
+                          
+                          console.log('item._id:', item._id);
+
+                          console.log('item: ', item);
+
+                          if (rowMap && rowMap[item._id]) {
+                            rowMap[item._id].closeRow();
+                          }
+
                           navigation.navigate('CrearTarjetaScreen', { oCliente: item });
                         }}
                       >
@@ -631,6 +664,7 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
                   )}
                   rightOpenValue={-80}
                   disableRightSwipe
+                  //closeOnRowOpen={false}
                 />
 
               </>
@@ -646,7 +680,7 @@ export const RegistrarPagosScreen = ({ route, navigation }: any) => {
                 </View>
             }
           </View>
-          :<View style={{ marginTop: 150 }}>
+          :<View style={{ marginTop: 200 }}>
             <ActivityIndicator animating={true} color={'#871a29'} size={50} />
           </View>
       }
@@ -678,13 +712,14 @@ const styles = StyleSheet.create({
     //marginBottom: 5,
   },
   rowBack: {
-    flex: 1,
+    //flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    backgroundColor: '#CCC',
+    //backgroundColor: '#CCC',
+    backgroundColor: '#FFF',
     paddingRight: 0,
-    height: 105
+    width: '100%'
   },
   backButton: {
     width: 80,

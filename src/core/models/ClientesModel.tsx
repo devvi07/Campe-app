@@ -14,6 +14,9 @@ export class ClientesModel extends Realm.Object<ClientesModel> {
     cobrador!: string;
     ruta!: string;
     foto!: string;
+    uri!: string;
+    type!: string;
+    namePhoto!: string;
     createdAt!: Date;
     updatedAt!: Date;
     action!: string;
@@ -34,6 +37,9 @@ export class ClientesModel extends Realm.Object<ClientesModel> {
         cobrador: 'string',
         ruta: 'string',
         foto: 'string',
+        uri: 'string',
+        type: 'string',
+        namePhoto: 'string',
         createdAt: 'date',
         updatedAt: 'date',
         action: 'string',

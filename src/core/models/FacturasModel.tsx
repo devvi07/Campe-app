@@ -13,6 +13,7 @@ export class FacturasModel extends Realm.Object<FacturasModel> {
     createdAt!: string;
     updatedAt!: string;
     sincronizar!: boolean;
+    pagos!: string;
     action!: string;
 
     static schema: Realm.ObjectSchema = {
@@ -29,6 +30,7 @@ export class FacturasModel extends Realm.Object<FacturasModel> {
             cliente: 'string',
             createdAt: 'string',
             updatedAt: 'string',
+            pagos: 'string',
             action: 'string',
         },
     };

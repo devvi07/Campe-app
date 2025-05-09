@@ -14,6 +14,9 @@ const ClientesSchema: Realm.ObjectSchema = {
         cobrador: 'string',
         ruta: 'string',
         foto: 'string',
+        uri: 'string',
+        type: 'string',
+        namePhoto: 'string',
         createdAt: 'string',
         updatedAt: 'string',
         action: 'string'

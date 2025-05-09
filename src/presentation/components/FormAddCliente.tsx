@@ -166,7 +166,7 @@ export const FormAddCliente = ({
                     value={nombre}
                     onChangeText={text => setNombre(text)}
                     style={{ backgroundColor: '#FFF' }}
-                    theme={{ colors: { primary: '#5a121c' } }}
+                    theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                     textColor='#000'
                 />
 
@@ -176,7 +176,7 @@ export const FormAddCliente = ({
                     value={apellidoP}
                     onChangeText={text => setApellidoP(text)}
                     style={{ backgroundColor: '#FFF' }}
-                    theme={{ colors: { primary: '#5a121c' } }}
+                    theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                     textColor='#000'
                 />
 
@@ -186,7 +186,7 @@ export const FormAddCliente = ({
                     value={apellidoM}
                     onChangeText={text => setApellidoM(text)}
                     style={{ backgroundColor: '#FFF' }}
-                    theme={{ colors: { primary: '#5a121c' } }}
+                    theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                     textColor='#000'
                 />
 
@@ -196,7 +196,7 @@ export const FormAddCliente = ({
                     value={direccion}
                     onChangeText={text => setDireccion(text)}
                     style={{ backgroundColor: '#FFF' }}
-                    theme={{ colors: { primary: '#5a121c' } }}
+                    theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                     textColor='#000'
                     keyboardType='email-address'
                 />
@@ -207,7 +207,7 @@ export const FormAddCliente = ({
                     value={municipio}
                     onChangeText={text => setMunicipio(text)}
                     style={{ backgroundColor: '#FFF' }}
-                    theme={{ colors: { primary: '#5a121c' } }}
+                    theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                     textColor='#000'
                 />
 
@@ -217,7 +217,7 @@ export const FormAddCliente = ({
                     value={tel}
                     onChangeText={text => setTel(text)}
                     style={{ backgroundColor: '#FFF' }}
-                    theme={{ colors: { primary: '#5a121c' } }}
+                    theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                     textColor='#000'
                     keyboardType= 'phone-pad'
                 />
@@ -356,7 +356,7 @@ export const FormAddCliente = ({
                     </Button>
                 </View>
                 </>:<>
-                <View style={{ marginTop: 150 }}>
+                <View style={{ marginTop: 200 }}>
                     <ActivityIndicator animating={true} color={'#871a29'} size={50}/>
                 </View>
                 </>

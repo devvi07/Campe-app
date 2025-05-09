@@ -57,6 +57,7 @@ export const CrearTarjetaScreen = ({ route, navigation }: any) => {
         cliente: oCliente._id,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        pagos: '',
         action: 'INSERT',
       }];
       
@@ -181,7 +182,7 @@ export const CrearTarjetaScreen = ({ route, navigation }: any) => {
                 value={articulo}
                 onChangeText={text => setArticulo(text)}
                 style={{ backgroundColor: '#FFF' }}
-                theme={{ colors: { primary: '#5a121c' } }}
+                theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                 textColor='#000'
               />
 
@@ -195,7 +196,7 @@ export const CrearTarjetaScreen = ({ route, navigation }: any) => {
                 value={cantidad}
                 onChangeText={text => setCantidad(text)}
                 style={{ backgroundColor: '#FFF' }}
-                theme={{ colors: { primary: '#5a121c' } }}
+                theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                 textColor='#000'
                 keyboardType='numeric'
               />
@@ -210,7 +211,7 @@ export const CrearTarjetaScreen = ({ route, navigation }: any) => {
                 value={monto}
                 onChangeText={text => setMonto(text)}
                 style={{ backgroundColor: '#FFF' }}
-                theme={{ colors: { primary: '#5a121c' } }}
+                theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                 textColor='#000'
                 keyboardType='numeric'
               />
@@ -240,7 +241,7 @@ export const CrearTarjetaScreen = ({ route, navigation }: any) => {
               fnAlert={fnAlert}
             />
           </> :
-          <View style={{ marginTop: 150 }}>
+          <View style={{ marginTop: 200 }}>
             <ActivityIndicator animating={true} color={'#871a29'} size={50} />
           </View>
       }

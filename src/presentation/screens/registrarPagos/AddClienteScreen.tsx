@@ -24,6 +24,9 @@ export const AddClienteScreen = ({ route, navigation }: any) => {
     //const [ruta, setRuta] = useState('');
     //const [cobrador, setCobrador] = useState('');
     const [foto, setFoto] = useState('');
+    const [uri, setUri] = useState('');
+    const [type, setType] = useState('');
+    const [namePhoto, setNamePhoto] = useState('');
     const [loading, setLoading] = useState(true);
 
     const [titleAlert, setTitleAlert] = useState('');
@@ -91,6 +94,9 @@ export const AddClienteScreen = ({ route, navigation }: any) => {
             cobrador: cobrador,
             ruta: ruta,
             foto: foto,
+            uri: uri,
+            type: type,
+            namePhoto: namePhoto,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             action: 'INSERT'
@@ -112,7 +118,7 @@ export const AddClienteScreen = ({ route, navigation }: any) => {
         //await createCliente(cliente);
     };
 
-    const createCliente = async (cliente: any) => {
+    /*const createCliente = async (cliente: any) => {
         try {
     
           const myHeaders = new Headers();
@@ -139,7 +145,7 @@ export const AddClienteScreen = ({ route, navigation }: any) => {
         } catch (e) {
           console.log('Error al agregar cliente: ', e);
         }
-    }
+    }*/
 
     const cancelar = () => navigation.goBack();
 
@@ -159,7 +165,7 @@ export const AddClienteScreen = ({ route, navigation }: any) => {
                             value={nombre}
                             onChangeText={text => setNombre(text)}
                             style={{ backgroundColor: '#FFF' }}
-                            theme={{ colors: { primary: '#5a121c' } }}
+                            theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                             textColor='#000'
                         />
 
@@ -169,7 +175,7 @@ export const AddClienteScreen = ({ route, navigation }: any) => {
                             value={apellidoP}
                             onChangeText={text => setApellidoP(text)}
                             style={{ backgroundColor: '#FFF' }}
-                            theme={{ colors: { primary: '#5a121c' } }}
+                            theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                             textColor='#000'
                         />
 
@@ -179,7 +185,7 @@ export const AddClienteScreen = ({ route, navigation }: any) => {
                             value={apellidoM}
                             onChangeText={text => setApellidoM(text)}
                             style={{ backgroundColor: '#FFF' }}
-                            theme={{ colors: { primary: '#5a121c' } }}
+                            theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                             textColor='#000'
                         />
 
@@ -189,7 +195,7 @@ export const AddClienteScreen = ({ route, navigation }: any) => {
                             value={direccion}
                             onChangeText={text => setDireccion(text)}
                             style={{ backgroundColor: '#FFF' }}
-                            theme={{ colors: { primary: '#5a121c' } }}
+                            theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                             textColor='#000'
                             keyboardType='email-address'
                         />
@@ -200,7 +206,7 @@ export const AddClienteScreen = ({ route, navigation }: any) => {
                             value={municipio}
                             onChangeText={text => setMunicipio(text)}
                             style={{ backgroundColor: '#FFF' }}
-                            theme={{ colors: { primary: '#5a121c' } }}
+                            theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                             textColor='#000'
                         />
 
@@ -210,7 +216,7 @@ export const AddClienteScreen = ({ route, navigation }: any) => {
                             value={tel}
                             onChangeText={text => setTel(text)}
                             style={{ backgroundColor: '#FFF' }}
-                            theme={{ colors: { primary: '#5a121c' } }}
+                            theme={{ colors: { primary: '#D6D6D6', outline: '#D6D6D6' } }}
                             textColor='#000'
                             keyboardType='phone-pad'
                         />
@@ -231,9 +237,14 @@ export const AddClienteScreen = ({ route, navigation }: any) => {
                                     //preset -> campe-app
                                     console.log('result.assets: ',result.assets);
                                     if (result.assets && result.assets[0].uri) {
-                                        setLoading(false);
+                                        //setLoading(false);
                                         const image = result.assets[0];
-                                        const data = new FormData();
+                                        setFoto(image.uri ?? '');
+                                        setUri(image.uri ?? '');
+                                        setType(image.type ?? '');
+                                        setNamePhoto(image.fileName ?? '');
+
+                                        /*const data = new FormData();
                                         data.append('file', {
                                             uri: image.uri,
                                             type: image.type,
@@ -248,9 +259,9 @@ export const AddClienteScreen = ({ route, navigation }: any) => {
 
                                         const json = await res.json();
                                         console.log('json.secure_url -> ',json.secure_url)
-                                        setFoto(json.secure_url ?? '');
-                                        setLoading(true);
-                                        //return json.secure_url; // esta es la URL para guardar
+                                        //setFoto(json.secure_url ?? '');
+                                        //setLoading(true);
+                                        //return json.secure_url; // esta es la URL para guardar*/
 
                                     }
                                 }}
@@ -306,7 +317,7 @@ export const AddClienteScreen = ({ route, navigation }: any) => {
                             </Button>
                         </View>
                     </> : <>
-                        <View style={{ marginTop: 150 }}>
+                        <View style={{ marginTop: 200 }}>
                             <ActivityIndicator animating={true} color={'#871a29'} size={50} />
                         </View>
                     </>

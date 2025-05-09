@@ -259,12 +259,12 @@ export const ClienteScreen = ({route,navigation}: any) => {
             loading ? 
             <>
             <ScrollView>
-                <View style={{ justifyContent: 'center', marginHorizontal: 25, marginTop: 80, alignItems: 'center', marginBottom: 66 }}>
+                <View style={{ justifyContent: 'center', marginHorizontal: 25, marginTop: 87, alignItems: 'center', marginBottom: 66 }}>
                     <TextInput.Icon
                         //icon={'cash-check'}
                         icon={'hand-coin'}
                         size={160}
-                        //color={'#DEDEDE'}
+                        color={  item.status == 'Pagado'  ? '#5a121c' :'#DEDEDE'}
                     />
                 </View>
 
@@ -339,7 +339,7 @@ export const ClienteScreen = ({route,navigation}: any) => {
                 </View>
                 
                 {
-                item.status !== 'Pagado' &&
+                item.status !== 'Pagado' ?
                 <View style={{ marginHorizontal: 20, marginTop: 50 }}>
                     <Button
                         mode="contained"
@@ -374,6 +374,9 @@ export const ClienteScreen = ({route,navigation}: any) => {
                     >
                         Confirmar pago
                     </Button>
+                </View>:
+                <View style={{ backgroundColor: '#f0cdd1', marginTop: 20, marginHorizontal: 20, borderRadius: 10, alignItems: 'center', padding: 35 }}>
+                    <Text style={{ fontSize: 20, fontWeight: '600', color: '#5a121c' }}>PAGADO</Text>
                 </View>
                 }
 
@@ -390,7 +393,7 @@ export const ClienteScreen = ({route,navigation}: any) => {
                 fnAlert={fnAlert}
             />
             </>:
-            <View style={{ marginTop: 150 }}>
+            <View style={{ marginTop: 200 }}>
                 <ActivityIndicator animating={true} color={'#871a29'} size={50} />
             </View>
         }
